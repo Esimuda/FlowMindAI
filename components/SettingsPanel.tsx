@@ -24,6 +24,14 @@ const FIELDS: Array<{
   { key: "gmailClientId",      label: "OAuth2 Client ID",     placeholder: "xxxx.apps.googleusercontent.com", group: "Gmail" },
   { key: "gmailClientSecret",  label: "OAuth2 Client Secret", placeholder: "GOCSPX-...", secret: true, group: "Gmail" },
   { key: "gmailRefreshToken",  label: "Refresh Token",        placeholder: "1//0g...", secret: true, group: "Gmail" },
+  { key: "twilioAccountSid",   label: "Account SID",          placeholder: "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", group: "Twilio" },
+  { key: "twilioAuthToken",    label: "Auth Token",           placeholder: "your_auth_token", secret: true, group: "Twilio" },
+  { key: "twilioFromNumber",   label: "From Number",          placeholder: "+14155551234", group: "Twilio" },
+  { key: "githubToken",        label: "Personal Access Token", placeholder: "ghp_...", secret: true, group: "GitHub" },
+  { key: "linearApiKey",       label: "API Key",              placeholder: "lin_api_...", secret: true, group: "Linear" },
+  { key: "discordWebhookUrl",  label: "Webhook URL",          placeholder: "https://discord.com/api/webhooks/...", secret: true, group: "Discord" },
+  { key: "mailchimpApiKey",    label: "API Key",              placeholder: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us1", secret: true, group: "Mailchimp" },
+  { key: "mailchimpListId",    label: "Audience / List ID",   placeholder: "abc123def4", group: "Mailchimp" },
 ];
 
 const STORAGE_KEY = "flowmind_user_config";

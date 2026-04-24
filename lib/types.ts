@@ -182,4 +182,17 @@ export interface IntegrationConfig {
   gmailClientId?: string;
   gmailClientSecret?: string;
   gmailRefreshToken?: string;
+  // Twilio
+  twilioAccountSid?: string;
+  twilioAuthToken?: string;
+  twilioFromNumber?: string;
+  // GitHub
+  githubToken?: string;
+  // Linear
+  linearApiKey?: string;
+  // Discord
+  discordWebhookUrl?: string;
+  // Mailchimp
+  mailchimpApiKey?: string;
+  mailchimpListId?: string;
 }

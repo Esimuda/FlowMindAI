@@ -10,6 +10,11 @@ import * as airtable from "@/lib/integrations/airtable";
 import * as sheets from "@/lib/integrations/sheets";
 import * as gmail from "@/lib/integrations/gmail";
 import * as calendar from "@/lib/integrations/calendar";
+import * as twilio from "@/lib/integrations/twilio";
+import * as github from "@/lib/integrations/github";
+import * as linear from "@/lib/integrations/linear";
+import * as discord from "@/lib/integrations/discord";
+import * as mailchimp from "@/lib/integrations/mailchimp";
 
 export interface RunContext {
   savedWorkflows?: SavedWorkflow[];
@@ -214,6 +219,85 @@ async function dispatch(
       const { gmailClientId: cid, gmailClientSecret: csec, gmailRefreshToken: rtok } = config;
       if (!cid || !csec || !rtok) throw new Error("Gmail is not connected. Please add your OAuth2 credentials in Settings.");
       return gmail.readEmail(cid, csec, rtok, input.message_id as string);
+    }
+
+    // ── Twilio ──────────────────────────────────────────────────────────────
+    case "twilio_send_sms": {
+      const { twilioAccountSid: sid, twilioAuthToken: tok, twilioFromNumber: fromNum } = config;
+      if (!sid || !tok) throw new Error("Twilio is not connected. Please add TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.");
+      const from = (input.from as string | undefined) ?? fromNum;
+      if (!from) throw new Error("No Twilio from-number configured. Add TWILIO_FROM_NUMBER in Settings.");
+      return twilio.sendSms(sid, tok, from, input.to as string, input.body as string);
+    }
+
+    case "twilio_send_whatsapp": {
+      const { twilioAccountSid: sid, twilioAuthToken: tok, twilioFromNumber: fromNum } = config;
+      if (!sid || !tok) throw new Error("Twilio is not connected. Please add TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.");
+      const from = (input.from as string | undefined) ?? fromNum;
+      if (!from) throw new Error("No Twilio from-number configured. Add TWILIO_FROM_NUMBER in Settings.");
+      return twilio.sendWhatsApp(sid, tok, from, input.to as string, input.body as string);
+    }
+
+    // ── GitHub ──────────────────────────────────────────────────────────────
+    case "github_create_issue": {
+      const token = config.githubToken;
+      if (!token) throw new Error("GitHub is not connected. Please add GITHUB_TOKEN in Settings.");
+      return github.createIssue(token, input.owner as string, input.repo as string, input.title as string, input.body as string | undefined, input.labels as string[] | undefined);
+    }
+
+    case "github_list_issues": {
+      const token = config.githubToken;
+      if (!token) throw new Error("GitHub is not connected. Please add GITHUB_TOKEN in Settings.");
+      return github.listIssues(token, input.owner as string, input.repo as string, (input.state as "open" | "closed" | "all" | undefined) ?? "open", (input.limit as number | undefined) ?? 10);
+    }
+
+    case "github_list_repos": {
+      const token = config.githubToken;
+      if (!token) throw new Error("GitHub is not connected. Please add GITHUB_TOKEN in Settings.");
+      return github.listRepos(token, (input.limit as number | undefined) ?? 10);
+    }
+
+    // ── Linear ──────────────────────────────────────────────────────────────
+    case "linear_create_issue": {
+      const apiKey = config.linearApiKey;
+      if (!apiKey) throw new Error("Linear is not connected. Please add LINEAR_API_KEY in Settings.");
+      return linear.createIssue(apiKey, input.title as string, input.description as string | undefined, input.team_id as string | undefined, input.priority as number | undefined);
+    }
+
+    case "linear_list_issues": {
+      const apiKey = config.linearApiKey;
+      if (!apiKey) throw new Error("Linear is not connected. Please add LINEAR_API_KEY in Settings.");
+      return linear.listIssues(apiKey, (input.limit as number | undefined) ?? 10, input.team_id as string | undefined);
+    }
+
+    // ── Discord ─────────────────────────────────────────────────────────────
+    case "discord_send_message": {
+      const webhookUrl = (input.webhook_url as string | undefined) ?? config.discordWebhookUrl;
+      if (!webhookUrl) throw new Error("Discord is not connected. Please add DISCORD_WEBHOOK_URL in Settings.");
+      return discord.sendMessage(webhookUrl, input.content as string, input.username as string | undefined, input.embed_title as string | undefined, input.embed_description as string | undefined);
+    }
+
+    // ── Mailchimp ───────────────────────────────────────────────────────────
+    case "mailchimp_add_contact": {
+      const apiKey = config.mailchimpApiKey;
+      const listId = (input.list_id as string | undefined) ?? config.mailchimpListId;
+      if (!apiKey) throw new Error("Mailchimp is not connected. Please add MAILCHIMP_API_KEY in Settings.");
+      if (!listId) throw new Error("No Mailchimp list configured. Add MAILCHIMP_LIST_ID in Settings.");
+      return mailchimp.addContact(apiKey, listId, input.email as string, input.first_name as string | undefined, input.last_name as string | undefined, input.tags as string[] | undefined);
+    }
+
+    case "mailchimp_list_contacts": {
+      const apiKey = config.mailchimpApiKey;
+      const listId = (input.list_id as string | undefined) ?? config.mailchimpListId;
+      if (!apiKey) throw new Error("Mailchimp is not connected. Please add MAILCHIMP_API_KEY in Settings.");
+      if (!listId) throw new Error("No Mailchimp list configured. Add MAILCHIMP_LIST_ID in Settings.");
+      return mailchimp.listContacts(apiKey, listId, (input.limit as number | undefined) ?? 10);
+    }
+
+    case "mailchimp_list_audiences": {
+      const apiKey = config.mailchimpApiKey;
+      if (!apiKey) throw new Error("Mailchimp is not connected. Please add MAILCHIMP_API_KEY in Settings.");
+      return mailchimp.listAudiences(apiKey);
     }
 
     case "execute_workflow": {

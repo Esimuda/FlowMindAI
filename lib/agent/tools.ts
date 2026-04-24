@@ -448,6 +448,154 @@ export const AGENT_TOOLS: Anthropic.Tool[] = [
       required: ["name", "trigger", "steps", "expected_outcome"],
     },
   },
+  // ── Twilio ────────────────────────────────────────────────────────────────
+  {
+    name: "twilio_send_sms",
+    description: "Send an SMS text message to a phone number via Twilio.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        to:   { type: "string", description: "Recipient phone number in E.164 format, e.g. +14155551234." },
+        body: { type: "string", description: "The SMS message text (max 1600 characters)." },
+        from: { type: "string", description: "Sender phone number (overrides configured default)." },
+      },
+      required: ["to", "body"],
+    },
+  },
+  {
+    name: "twilio_send_whatsapp",
+    description: "Send a WhatsApp message via Twilio. Use for WhatsApp business notifications.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        to:   { type: "string", description: "Recipient WhatsApp number in E.164 format, e.g. +14155551234." },
+        body: { type: "string", description: "The WhatsApp message text." },
+        from: { type: "string", description: "Sender WhatsApp number (overrides configured default)." },
+      },
+      required: ["to", "body"],
+    },
+  },
+  // ── GitHub ────────────────────────────────────────────────────────────────
+  {
+    name: "github_create_issue",
+    description: "Create a new GitHub issue in a repository. Use for bug reports, feature requests, or task tracking.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        owner:  { type: "string", description: "GitHub username or org that owns the repo." },
+        repo:   { type: "string", description: "Repository name (without the owner prefix)." },
+        title:  { type: "string", description: "Issue title." },
+        body:   { type: "string", description: "Issue description (markdown supported)." },
+        labels: { type: "array", items: { type: "string" }, description: "Label names to apply (optional)." },
+      },
+      required: ["owner", "repo", "title"],
+    },
+  },
+  {
+    name: "github_list_issues",
+    description: "List issues from a GitHub repository.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        owner: { type: "string", description: "GitHub username or org." },
+        repo:  { type: "string", description: "Repository name." },
+        state: { type: "string", enum: ["open", "closed", "all"], description: "Filter by issue state. Default: open." },
+        limit: { type: "number", description: "How many issues to return. Default 10, max 25." },
+      },
+      required: ["owner", "repo"],
+    },
+  },
+  {
+    name: "github_list_repos",
+    description: "List repositories for the authenticated GitHub user.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        limit: { type: "number", description: "How many repos to return. Default 10, max 25." },
+      },
+      required: [],
+    },
+  },
+  // ── Linear ────────────────────────────────────────────────────────────────
+  {
+    name: "linear_create_issue",
+    description: "Create a new issue in Linear. Use for engineering tasks, bug reports, or feature work.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        title:       { type: "string", description: "Issue title." },
+        description: { type: "string", description: "Issue description (markdown supported)." },
+        team_id:     { type: "string", description: "Linear team ID (optional — uses first team if omitted)." },
+        priority:    { type: "number", description: "Priority: 0=No priority, 1=Urgent, 2=High, 3=Medium, 4=Low." },
+      },
+      required: ["title"],
+    },
+  },
+  {
+    name: "linear_list_issues",
+    description: "List issues from Linear. Use to review backlog, find active work, or check issue status.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        limit:   { type: "number", description: "How many issues to return. Default 10, max 25." },
+        team_id: { type: "string", description: "Filter by team ID (optional)." },
+      },
+      required: [],
+    },
+  },
+  // ── Discord ───────────────────────────────────────────────────────────────
+  {
+    name: "discord_send_message",
+    description: "Send a message to a Discord channel via webhook. Use for team alerts, notifications, or reports.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        content:           { type: "string", description: "The message text." },
+        username:          { type: "string", description: "Display name override (optional)." },
+        embed_title:       { type: "string", description: "Optional embed card title." },
+        embed_description: { type: "string", description: "Optional embed card body." },
+        webhook_url:       { type: "string", description: "Discord webhook URL (overrides configured default)." },
+      },
+      required: ["content"],
+    },
+  },
+  // ── Mailchimp ─────────────────────────────────────────────────────────────
+  {
+    name: "mailchimp_add_contact",
+    description: "Add or subscribe a contact to a Mailchimp audience list.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        email:      { type: "string", description: "Contact email address." },
+        first_name: { type: "string", description: "First name (optional)." },
+        last_name:  { type: "string", description: "Last name (optional)." },
+        tags:       { type: "array", items: { type: "string" }, description: "Tags to apply to the contact (optional)." },
+        list_id:    { type: "string", description: "Mailchimp audience/list ID (overrides configured default)." },
+      },
+      required: ["email"],
+    },
+  },
+  {
+    name: "mailchimp_list_contacts",
+    description: "List contacts in a Mailchimp audience.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        limit:   { type: "number", description: "How many contacts to return. Default 10, max 25." },
+        list_id: { type: "string", description: "Mailchimp audience/list ID (overrides configured default)." },
+      },
+      required: [],
+    },
+  },
+  {
+    name: "mailchimp_list_audiences",
+    description: "List all Mailchimp audiences (lists) in the account.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
   {
     name: "get_run_history",
     description:

@@ -52,6 +52,31 @@ export const INTEGRATION_META: IntegrationMeta[] = [
     tools: ["calendar_list_events", "calendar_create_event"],
     isConnected: (c) => !!c.gmailClientId && !!c.gmailClientSecret && !!c.gmailRefreshToken,
   },
+  {
+    name: "Twilio",
+    tools: ["twilio_send_sms", "twilio_send_whatsapp"],
+    isConnected: (c) => !!c.twilioAccountSid && !!c.twilioAuthToken,
+  },
+  {
+    name: "GitHub",
+    tools: ["github_create_issue", "github_list_issues", "github_list_repos"],
+    isConnected: (c) => !!c.githubToken,
+  },
+  {
+    name: "Linear",
+    tools: ["linear_create_issue", "linear_list_issues"],
+    isConnected: (c) => !!c.linearApiKey,
+  },
+  {
+    name: "Discord",
+    tools: ["discord_send_message"],
+    isConnected: (c) => !!c.discordWebhookUrl,
+  },
+  {
+    name: "Mailchimp",
+    tools: ["mailchimp_add_contact", "mailchimp_list_contacts", "mailchimp_list_audiences"],
+    isConnected: (c) => !!c.mailchimpApiKey,
+  },
 ];
 
 export function getConnectedIntegrations(config: IntegrationConfig): IntegrationMeta[] {

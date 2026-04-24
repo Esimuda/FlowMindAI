@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import TopBar from "@/components/TopBar";
 import ChatPanel from "@/components/ChatPanel";
@@ -24,7 +24,7 @@ function generateId(): string {
 const ONBOARDING_Q1 =
   "Hi! I'll ask you a few quick questions to understand your business — this helps me work much more effectively for you.\n\nLet's start: **What's your company name and what does your business do?**";
 
-export default function Home() {
+function DashboardInner() {
   const searchParams = useSearchParams();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -330,5 +330,13 @@ export default function Home() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div style={{ background: "#050508", height: "100vh" }} />}>
+      <DashboardInner />
+    </Suspense>
   );
 }

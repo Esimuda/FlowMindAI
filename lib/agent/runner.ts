@@ -4,6 +4,7 @@ import { executeTool, RunContext } from "./executor";
 import { AgentRun, AgentStreamEvent, BusinessProfile, IntegrationConfig } from "@/lib/types";
 import { INTEGRATION_META } from "@/lib/integrations/meta";
 import type { SavedWorkflow } from "@/lib/db/workflows";
+import type { CustomTool } from "@/lib/db/customTools";
 
 function buildBusinessContext(profile: BusinessProfile): string {
   const toolLines = Object.entries(profile.tools)
@@ -25,7 +26,7 @@ ${workflowLines}${refLines ? `\n  Default references:\n${refLines}` : ""}${profi
 `;
 }
 
-function buildSystemPrompt(config: IntegrationConfig, profile?: BusinessProfile | null): string {
+function buildSystemPrompt(config: IntegrationConfig, profile?: BusinessProfile | null, customTools: CustomTool[] = []): string {
   const connected = INTEGRATION_META.filter((m) => m.isConnected(config));
   const disconnected = INTEGRATION_META.filter((m) => !m.isConnected(config));
 
@@ -86,7 +87,11 @@ RESPONSE STYLE — follow these strictly:
 - Keep responses short and factual. State what was done and the key result. Nothing more.
 - Do not add motivational closings, offers to help further, or rhetorical questions at the end.
 
-You are not a general-purpose chatbot. Stay focused on automations, operations, and workflows.`;
+You are not a general-purpose chatbot. Stay focused on automations, operations, and workflows.${
+    customTools.length > 0
+      ? `\n\nCUSTOM TOOLS (user-defined HTTP integrations — available for use):\n${customTools.filter((ct) => ct.enabled).map((ct) => `- ${ct.name}: ${ct.description}`).join("\n")}`
+      : ""
+  }`;
 }
 
 export interface RunnerOptions {
@@ -98,11 +103,31 @@ export interface RunnerOptions {
   businessProfile?: BusinessProfile | null;
   savedWorkflows?: SavedWorkflow[];
   runHistory?: AgentRun[];
+  customTools?: CustomTool[];
+}
+
+function buildCustomToolDefs(customTools: CustomTool[]): Anthropic.Tool[] {
+  return customTools
+    .filter((ct) => ct.enabled)
+    .map((ct) => ({
+      name: ct.name,
+      description: ct.description,
+      input_schema: {
+        type: "object" as const,
+        properties: Object.fromEntries(
+          ct.params.map((p) => [
+            p.name,
+            { type: p.type, description: p.description },
+          ])
+        ),
+        required: ct.params.filter((p) => p.required).map((p) => p.name),
+      },
+    }));
 }
 
 export async function runAgent(options: RunnerOptions): Promise<string> {
-  const { message, conversationHistory, runId, emit, config, businessProfile, savedWorkflows, runHistory } = options;
-  const runContext: RunContext = { savedWorkflows, runHistory };
+  const { message, conversationHistory, runId, emit, config, businessProfile, savedWorkflows, runHistory, customTools = [] } = options;
+  const runContext: RunContext = { savedWorkflows, runHistory, customTools };
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -118,11 +143,12 @@ export async function runAgent(options: RunnerOptions): Promise<string> {
   while (iterations < MAX_ITERATIONS) {
     iterations++;
 
+    const customToolDefs = buildCustomToolDefs(customTools);
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
-      system: buildSystemPrompt(config, businessProfile),
-      tools: getActiveTools(config),
+      system: buildSystemPrompt(config, businessProfile, customTools),
+      tools: [...getActiveTools(config), ...customToolDefs],
       messages,
     });
 

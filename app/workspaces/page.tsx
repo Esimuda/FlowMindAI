@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 interface Member { user_id: string; role: string }
 interface Workspace { id: string; name: string; owner_id: string; created_at: string; workspace_members: Member[] }
@@ -18,6 +19,7 @@ export default function WorkspacesPage() {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Invite state
   const [inviteWorkspaceId, setInviteWorkspaceId] = useState<string | null>(null);
@@ -27,14 +29,20 @@ export default function WorkspacesPage() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
 
-  async function loadWorkspaces() {
+  const loadWorkspaces = useCallback(async () => {
     const res = await fetch("/api/workspaces");
-    const json = await res.json();
+    const json = await res.json() as { workspaces?: Workspace[] };
     setWorkspaces(json.workspaces ?? []);
     setLoading(false);
-  }
+  }, []);
 
-  useEffect(() => { loadWorkspaces(); }, []);
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null);
+    });
+    loadWorkspaces();
+  }, [loadWorkspaces]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +54,7 @@ export default function WorkspacesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: newName.trim() }),
     });
-    const json = await res.json();
+    const json = await res.json() as { error?: string };
     if (!res.ok) {
       setCreateError(json.error ?? "Failed to create workspace");
     } else {
@@ -67,14 +75,43 @@ export default function WorkspacesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ workspaceId: inviteWorkspaceId, email: inviteEmail.trim(), role: inviteRole }),
     });
-    const json = await res.json();
+    const json = await res.json() as { error?: string; inviteUrl?: string };
     if (!res.ok) {
       setInviteError(json.error ?? "Failed to create invite");
     } else {
-      setInviteResult({ url: json.inviteUrl });
+      setInviteResult({ url: json.inviteUrl! });
       setInviteEmail("");
     }
     setInviteLoading(false);
+  }
+
+  async function handleLeave(workspaceId: string) {
+    if (!confirm("Leave this workspace? You will lose access to its shared resources.")) return;
+    await fetch("/api/workspaces/leave", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workspaceId }),
+    });
+    loadWorkspaces();
+  }
+
+  async function handleDelete(workspaceId: string) {
+    if (!confirm("Delete this workspace? This cannot be undone and all members will lose access.")) return;
+    await fetch(`/api/workspaces/${workspaceId}`, { method: "DELETE" });
+    loadWorkspaces();
+  }
+
+  function isOwner(ws: Workspace) {
+    return ws.owner_id === currentUserId;
+  }
+
+  function isMember(ws: Workspace) {
+    return ws.workspace_members.some((m) => m.user_id === currentUserId);
+  }
+
+  function memberLabel(userId: string): string {
+    if (userId === currentUserId) return "You";
+    return userId.slice(0, 8) + "…";
   }
 
   return (
@@ -149,24 +186,57 @@ export default function WorkspacesPage() {
                         Created {new Date(ws.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <button
-                      onClick={() => { setInviteWorkspaceId(ws.id); setInviteResult(null); setInviteError(null); }}
-                      className="text-xs px-3 py-1.5 rounded-lg transition-all"
-                      style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.2)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.1)")}
-                    >
-                      + Invite member
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {isOwner(ws) && (
+                        <button
+                          onClick={() => { setInviteWorkspaceId(ws.id); setInviteResult(null); setInviteError(null); }}
+                          className="text-xs px-3 py-1.5 rounded-lg transition-all"
+                          style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.2)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.1)")}
+                        >
+                          + Invite
+                        </button>
+                      )}
+                      {isOwner(ws) ? (
+                        <button
+                          onClick={() => handleDelete(ws.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg transition-all"
+                          style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+                        >
+                          Delete
+                        </button>
+                      ) : isMember(ws) ? (
+                        <button
+                          onClick={() => handleLeave(ws.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg transition-all"
+                          style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+                        >
+                          Leave
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
 
                   {/* Members */}
                   <div className="space-y-2">
                     {ws.workspace_members.map((m) => (
                       <div key={m.user_id} className="flex items-center justify-between py-2 px-3 rounded-lg" style={{ background: "#050508" }}>
-                        <span className="text-xs font-mono" style={{ color: "#64748b" }}>
-                          {m.user_id.slice(0, 8)}…
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                            style={{ background: m.user_id === currentUserId ? "rgba(124,58,237,0.2)" : "rgba(100,116,139,0.1)", color: m.user_id === currentUserId ? "#a78bfa" : "#64748b" }}
+                          >
+                            {m.user_id === currentUserId ? "Y" : m.user_id.slice(0, 1).toUpperCase()}
+                          </div>
+                          <span className="text-xs font-mono" style={{ color: m.user_id === currentUserId ? "#94a3b8" : "#64748b" }}>
+                            {memberLabel(m.user_id)}
+                          </span>
+                        </div>
                         <span
                           className="text-[10px] px-2 py-0.5 rounded-full capitalize font-medium"
                           style={{ background: `${ROLE_COLORS[m.role]}18`, color: ROLE_COLORS[m.role], border: `1px solid ${ROLE_COLORS[m.role]}30` }}

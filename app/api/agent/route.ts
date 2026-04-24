@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadIntegrationConfig } from "@/lib/db/integrations";
 import { AgentRun, AgentStreamEvent, BusinessProfile, IntegrationConfig, ToolCallRecord } from "@/lib/types";
 import type { SavedWorkflow } from "@/lib/db/workflows";
+import { listCustomTools } from "@/lib/db/customTools";
 
 function generateId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -107,6 +108,8 @@ export async function POST(req: NextRequest): Promise<Response> {
           : {};
         const config = mergeWithEnv(storedConfig);
 
+        const customTools = userId !== "anonymous" ? await listCustomTools(userId) : [];
+
         const finalMessage = await runOrchestrator({
           message,
           conversationHistory,
@@ -117,6 +120,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           savedWorkflows,
           runHistory,
           userId,
+          customTools,
         });
 
         updateRun(runId, { status: "completed", finalMessage, completedAt: Date.now() });

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDueSchedulesAdmin, markScheduleRanAdmin } from "@/lib/db/schedules-server";
 import { runOrchestrator } from "@/lib/agent/orchestrator";
 import { saveRun, updateRun } from "@/lib/db/runs";
+import { sendAlertNotification } from "@/lib/monitoring/notify";
 import type { AgentRun, IntegrationConfig } from "@/lib/types";
 
 function generateId(): string {
@@ -85,19 +86,29 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       saveRun(run);
 
       let finalMessage = "";
+      let runStatus: "success" | "failure" = "success";
+      const startedAt = Date.now();
+      // Track step results for alert payloads
+      let succeededSteps = 0;
+      let failedSteps = 0;
+
+      const trackEmit = (event: { type: string }) => {
+        if (event.type === "tool_call_complete") succeededSteps++;
+        if (event.type === "tool_call_error") failedSteps++;
+      };
+
       try {
         finalMessage = await runOrchestrator({
           message: buildScheduledPrompt(schedule as Parameters<typeof buildScheduledPrompt>[0]),
           conversationHistory: [],
           runId,
-          emit: () => {}, // no SSE client — fire-and-forget
+          emit: trackEmit as Parameters<typeof runOrchestrator>[0]["emit"],
           config,
           userId: schedule.user_id,
         });
 
         updateRun(runId, { status: "completed", finalMessage, completedAt: Date.now() });
 
-        // Persist run to Supabase so user can see it in history
         await admin.from("run_history").upsert({
           id: runId,
           user_id: schedule.user_id,
@@ -105,14 +116,54 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           started_at: new Date(run.startedAt).toISOString(),
         });
       } catch (err) {
+        runStatus = "failure";
         updateRun(runId, { status: "failed", completedAt: Date.now() });
         const errMsg = err instanceof Error ? err.message : String(err);
+        finalMessage = `Error: ${errMsg}`;
         await admin.from("run_history").upsert({
           id: runId,
           user_id: schedule.user_id,
-          run: { ...run, status: "failed", finalMessage: `Error: ${errMsg}`, completedAt: Date.now() },
+          run: { ...run, status: "failed", finalMessage, completedAt: Date.now() },
           started_at: new Date(run.startedAt).toISOString(),
         });
+      }
+
+      // Fire alert notifications (non-blocking)
+      const { data: alertRows } = await admin
+        .from("workflow_alerts")
+        .select("*")
+        .eq("user_id", schedule.user_id)
+        .eq("workflow_id", schedule.workflow_id)
+        .eq("enabled", true);
+
+      if (alertRows && alertRows.length > 0) {
+        const notifyPayload = {
+          workflowName: schedule.workflow_name,
+          status: runStatus,
+          runId,
+          summary: finalMessage.slice(0, 200),
+          succeededSteps,
+          failedSteps,
+          durationMs: Date.now() - startedAt,
+        };
+        await Promise.allSettled(
+          alertRows.map((row: Record<string, unknown>) =>
+            sendAlertNotification(
+              {
+                id: row.id as string,
+                userId: row.user_id as string,
+                workflowId: row.workflow_id as string,
+                workflowName: row.workflow_name as string,
+                channel: row.channel as "email" | "slack",
+                destination: row.destination as string,
+                event: row.event as "failure" | "success" | "all",
+                enabled: row.enabled as boolean,
+                createdAt: new Date(row.created_at as string).getTime(),
+              },
+              notifyPayload
+            )
+          )
+        );
       }
 
       // Always advance the schedule's next_run_at so it doesn't retrigger immediately

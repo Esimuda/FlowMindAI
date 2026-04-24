@@ -9,6 +9,8 @@ import RunHistoryPanel from "@/components/RunHistoryPanel";
 import WorkflowLibraryPanel from "@/components/WorkflowLibraryPanel";
 import SettingsPanel from "@/components/SettingsPanel";
 import DashboardPanel from "@/components/DashboardPanel";
+import MonitoringPanel from "@/components/MonitoringPanel";
+import CustomToolsPanel from "@/components/CustomToolsPanel";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { AgentRun, AgentStage, AgentStreamEvent, BusinessProfile, ChatMessage, ExecutionObservation, PanelView, ReflectionResult, ToolCallRecord } from "@/lib/types";
 import { loadProfile, saveProfile } from "@/lib/db/businessProfile";
@@ -343,11 +345,13 @@ function DashboardInner() {
         <div
           className={`flex-1 overflow-hidden flex-col px-4 py-4 md:px-6 md:py-6 ${mobileShowPanel ? "flex" : "hidden md:flex"}`}
         >
-          {panelView === "run"      && <AgentRunPanel run={currentRun} currentStage={currentStage} reflection={currentReflection} observation={currentObservation} />}
+          {panelView === "run"       && <AgentRunPanel run={currentRun} currentStage={currentStage} reflection={currentReflection} observation={currentObservation} />}
           {panelView === "history"   && <RunHistoryPanel />}
           {panelView === "library"   && <WorkflowLibraryPanel />}
           {panelView === "dashboard" && <DashboardPanel />}
           {panelView === "settings"  && <SettingsPanel businessProfile={businessProfile} />}
+          {panelView === "monitor"   && <MonitoringPanel />}
+          {panelView === "tools"     && <CustomToolsPanel />}
         </div>
       </main>
 

@@ -4,18 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import { AgentRun, AgentStage, ExecutionObservation, ReflectionResult } from "@/lib/types";
 import ToolCallCard from "./ToolCallCard";
 import { toN8nJson, toMakeJson, WorkflowBlueprint } from "@/lib/export/n8n";
-import { toZapierJson } from "@/lib/export/zapier";
+import { toZapierJson, toZapierMarkdown } from "@/lib/export/zapier";
 import { saveWorkflow } from "@/lib/db/workflows";
+import WorkflowVisualizer from "./WorkflowVisualizer";
 import { createSchedule, freqLabel, hourLabel, ScheduleFrequency } from "@/lib/db/schedules";
 
-function downloadJson(filename: string, content: string) {
-  const blob = new Blob([content], { type: "application/json" });
+function downloadFile(filename: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function downloadJson(filename: string, content: string) {
+  downloadFile(filename, content, "application/json");
 }
 
 function ExportButtons({ workflow }: { workflow: WorkflowBlueprint }) {
@@ -30,10 +35,11 @@ function ExportButtons({ workflow }: { workflow: WorkflowBlueprint }) {
       </p>
       <div className="flex gap-2 flex-wrap">
         {[
-          { label: "Zapier JSON", fn: () => downloadJson(`${safeName}-zapier.json`, toZapierJson(workflow)) },
-          { label: "n8n JSON",   fn: () => downloadJson(`${safeName}-n8n.json`,    toN8nJson(workflow)) },
-          { label: "Make JSON",  fn: () => downloadJson(`${safeName}-make.json`,   toMakeJson(workflow)) },
-          { label: "Raw JSON",   fn: () => downloadJson(`${safeName}.json`,        JSON.stringify(workflow, null, 2)) },
+          { label: "Zapier Guide", fn: () => downloadFile(`${safeName}-zapier-guide.md`, toZapierMarkdown(workflow), "text/markdown") },
+          { label: "Zapier JSON",  fn: () => downloadJson(`${safeName}-zapier.json`, toZapierJson(workflow)) },
+          { label: "n8n JSON",     fn: () => downloadJson(`${safeName}-n8n.json`,    toN8nJson(workflow)) },
+          { label: "Make JSON",    fn: () => downloadJson(`${safeName}-make.json`,   toMakeJson(workflow)) },
+          { label: "Raw JSON",     fn: () => downloadJson(`${safeName}.json`,        JSON.stringify(workflow, null, 2)) },
         ].map(({ label, fn }) => (
           <button
             key={label}
@@ -440,6 +446,7 @@ export default function AgentRunPanel({
               <ToolCallCard tc={tc} />
               {workflow && (
                 <>
+                  <WorkflowVisualizer workflow={workflow} />
                   <ExportButtons workflow={workflow} />
                   <ScheduleSection workflow={workflow} />
                 </>

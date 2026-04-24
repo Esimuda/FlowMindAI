@@ -17,6 +17,7 @@ import type {
 
 export interface OrchestratorOptions extends RunnerOptions {
   userId: string;
+  // customTools is inherited from RunnerOptions
 }
 
 const MAX_RETRIES = 2;
@@ -140,7 +141,8 @@ export async function runOrchestrator(options: OrchestratorOptions): Promise<str
     // ── Layer 7: Reflection ──────────────────────────────────────────────────
     emit({ type: "agent_stage", runId, stage: "reflecting", description: "Diagnosing results..." });
 
-    const reflection = await reflect(observation, memory.getPatterns());
+    const relevantMemories = memory.searchRelevant(goal.goal, 6);
+    const reflection = await reflect(observation, relevantMemories);
     execution.reflection = reflection;
     emit({ type: "reflection_complete", runId, reflection });
 
@@ -154,9 +156,11 @@ export async function runOrchestrator(options: OrchestratorOptions): Promise<str
           failure: issue.issue,
           cause: issue.cause,
           solution: issue.fix,
+          tool: executionSteps.find((s) => s.id === issue.stepId)?.tool,
           learnedAt: Date.now(),
         });
       }
+      memory.deduplicatePatterns();
     }
 
     if (!reflection.shouldRetry || retryCount >= MAX_RETRIES) break;

@@ -1,5 +1,7 @@
 import { AgentRun, IntegrationConfig } from "@/lib/types";
 import type { SavedWorkflow } from "@/lib/db/workflows";
+import type { CustomTool } from "@/lib/db/customTools";
+import { executeCustomTool } from "@/lib/db/customTools";
 import { buildExecutionPlan, formatExecutionPlan, type DagStep } from "@/lib/agent/dag";
 import * as notion from "@/lib/integrations/notion";
 import * as resend from "@/lib/integrations/resend";
@@ -19,6 +21,7 @@ import * as mailchimp from "@/lib/integrations/mailchimp";
 export interface RunContext {
   savedWorkflows?: SavedWorkflow[];
   runHistory?: AgentRun[];
+  customTools?: CustomTool[];
 }
 
 export interface ToolResult {
@@ -387,7 +390,15 @@ async function dispatch(
       return `Last ${recent.length} run${recent.length !== 1 ? "s" : ""}:\n\n${lines.join("\n\n")}`;
     }
 
-    default:
+    default: {
+      // Check user-defined custom tools (prefixed or exact name match)
+      const customTool = context?.customTools?.find(
+        (ct) => ct.name === toolName || `custom_${ct.name}` === toolName
+      );
+      if (customTool) {
+        return executeCustomTool(customTool, input);
+      }
       throw new Error(`Unknown tool: ${toolName}`);
+    }
   }
 }

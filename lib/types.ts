@@ -164,7 +164,7 @@ export interface BusinessProfile {
 
 // ─── Panel view ───────────────────────────────────────────────────────────────
 
-export type PanelView = "run" | "history" | "library" | "dashboard" | "settings";
+export type PanelView = "run" | "history" | "library" | "dashboard" | "settings" | "monitor" | "tools";
 
 // ─── Integration config ───────────────────────────────────────────────────────
 

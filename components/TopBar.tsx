@@ -17,6 +17,8 @@ const VIEWS: { id: PanelView; label: string }[] = [
   { id: "run",       label: "Run" },
   { id: "history",   label: "History" },
   { id: "library",   label: "Library" },
+  { id: "monitor",   label: "Monitor" },
+  { id: "tools",     label: "Tools" },
   { id: "dashboard", label: "Dashboard" },
   { id: "settings",  label: "Settings" },
 ];

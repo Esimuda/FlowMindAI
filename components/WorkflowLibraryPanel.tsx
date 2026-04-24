@@ -54,7 +54,11 @@ function WorkflowCard({
   const [webhookLoading, setWebhookLoading] = useState(false);
   const [webhookCopied, setWebhookCopied] = useState(false);
   const [runContext, setRunContext] = useState("");
-  const [schedule, setSchedule] = useState<ScheduledWorkflow | undefined>(() => getScheduleForWorkflow(saved.id));
+  const [schedule, setSchedule] = useState<ScheduledWorkflow | undefined>(undefined);
+
+  useEffect(() => {
+    getScheduleForWorkflow(saved.id).then(setSchedule);
+  }, [saved.id]);
   const { blueprint } = saved;
   const safeName = blueprint.name.replace(/\s+/g, "-").toLowerCase();
 
@@ -84,21 +88,21 @@ function WorkflowCard({
     setTimeout(() => setWebhookCopied(false), 2000);
   };
 
-  const refreshSchedule = () => setSchedule(getScheduleForWorkflow(saved.id));
+  const refreshSchedule = () => getScheduleForWorkflow(saved.id).then(setSchedule);
 
-  const handleSchedule = (freq: ScheduleFrequency) => {
-    createSchedule(saved.id, blueprint, freq);
+  const handleSchedule = async (freq: ScheduleFrequency) => {
+    await createSchedule(saved.id, blueprint, freq);
     refreshSchedule();
     onScheduleChange();
     setShowSchedule(false);
   };
 
   const handleToggleSchedule = () => {
-    if (schedule) { toggleSchedule(schedule.id); refreshSchedule(); onScheduleChange(); }
+    if (schedule) { toggleSchedule(schedule.id).then(() => refreshSchedule()); onScheduleChange(); }
   };
 
   const handleDeleteSchedule = () => {
-    if (schedule) { deleteSchedule(schedule.id); refreshSchedule(); onScheduleChange(); }
+    if (schedule) { deleteSchedule(schedule.id).then(() => refreshSchedule()); onScheduleChange(); }
   };
 
   const handleRun = () => {

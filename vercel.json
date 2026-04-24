@@ -1,5 +1,17 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/run-schedules",
+      "schedule": "* * * * *"
+    }
+  ],
   "functions": {
+    "app/api/cron/run-schedules/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/agent/route.ts": {
+      "maxDuration": 60
+    },
     "app/api/execution/stream/route.ts": {
       "maxDuration": 60
     },

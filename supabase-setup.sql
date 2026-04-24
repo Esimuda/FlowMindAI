@@ -34,6 +34,21 @@ alter table public.business_profile enable row level security;
 create policy "users manage own profile" on public.business_profile
   for all using (auth.uid() = user_id);
 
+-- Webhooks (one URL per workflow, triggers execution via POST)
+create table if not exists public.webhooks (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  workflow_name text not null,
+  enabled boolean default true,
+  trigger_count int default 0,
+  last_triggered_at timestamptz,
+  created_at timestamptz default now(),
+  unique(user_id, workflow_name)
+);
+alter table public.webhooks enable row level security;
+create policy "users manage own webhooks" on public.webhooks
+  for all using (auth.uid() = user_id);
+
 -- User integration credentials (one row per user, replaces localStorage)
 create table if not exists public.user_integrations (
   user_id uuid references auth.users(id) on delete cascade primary key,

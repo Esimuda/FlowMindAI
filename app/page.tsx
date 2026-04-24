@@ -1,309 +1,184 @@
-"use client";
+import Link from "next/link";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import TopBar from "@/components/TopBar";
-import ChatPanel from "@/components/ChatPanel";
-import AgentRunPanel from "@/components/AgentRunPanel";
-import RunHistoryPanel from "@/components/RunHistoryPanel";
-import WorkflowLibraryPanel from "@/components/WorkflowLibraryPanel";
-import SettingsPanel from "@/components/SettingsPanel";
-import { AgentRun, AgentStage, AgentStreamEvent, BusinessProfile, ChatMessage, ExecutionObservation, PanelView, ReflectionResult, ToolCallRecord } from "@/lib/types";
-import { loadProfile, saveProfile } from "@/lib/db/businessProfile";
-import { persistRun, listRunHistory } from "@/lib/db/runHistory";
-import { listWorkflows } from "@/lib/db/workflows";
-import { useScheduler } from "@/lib/useScheduler";
-import { createClient } from "@/lib/supabase/client";
-import Anthropic from "@anthropic-ai/sdk";
+const FEATURES = [
+  {
+    icon: "⚡",
+    title: "Goal-driven automation",
+    body: "Describe what you want in plain language. FlowMind interprets intent, plans steps, selects tools, and executes — no configuration required.",
+  },
+  {
+    icon: "🔁",
+    title: "Self-healing workflows",
+    body: "When a step fails, the Reflection engine diagnoses the cause, patches the workflow, and retries automatically — up to twice per run.",
+  },
+  {
+    icon: "🧠",
+    title: "Learns over time",
+    body: "Every failure pattern is stored in long-term memory. The agent applies past fixes to future runs without being told.",
+  },
+  {
+    icon: "🔌",
+    title: "9 integrations out of the box",
+    body: "Notion, Gmail, Slack, Stripe, HubSpot, Airtable, Google Sheets, Google Calendar, Resend — connect once, use everywhere.",
+  },
+  {
+    icon: "📤",
+    title: "Export to any platform",
+    body: "Every workflow can be exported as n8n JSON, Make.com scenario, or Zapier Zap — so you own your automations.",
+  },
+  {
+    icon: "🔒",
+    title: "Fully isolated per account",
+    body: "Your workflows, API keys, and memory are scoped to your account with row-level security. No shared data.",
+  },
+];
 
-function generateId(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
+const STEPS = [
+  { n: "01", title: "Connect your tools", body: "Add your API keys once in the Settings panel. They're stored encrypted to your account — never in the browser." },
+  { n: "02", title: "Describe your goal", body: "Type what you want to automate. The agent interprets intent, plans the steps, selects the right tools, and builds the workflow." },
+  { n: "03", title: "Watch it execute", body: "The agent runs each step, observes results, reflects on failures, and self-heals — all in real time." },
+];
 
-const ONBOARDING_Q1 =
-  "Hi! I'll ask you a few quick questions to understand your business — this helps me work much more effectively for you.\n\nLet's start: **What's your company name and what does your business do?**";
-
-export default function Home() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingToolName, setLoadingToolName] = useState<string | undefined>();
-  const [currentRun, setCurrentRun] = useState<AgentRun | null>(null);
-  const [panelView, setPanelView] = useState<PanelView>("run");
-  const [inputValue, setInputValue] = useState("");
-  const [isOnboarding, setIsOnboarding] = useState(false);
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
-  const [currentStage, setCurrentStage] = useState<{ stage: AgentStage; description: string } | null>(null);
-  const [currentReflection, setCurrentReflection] = useState<ReflectionResult | null>(null);
-  const [currentObservation, setCurrentObservation] = useState<ExecutionObservation | null>(null);
-
-  const historyRef = useRef<Anthropic.MessageParam[]>([]);
-  const isOnboardingRef = useRef(false);
-
-  useScheduler();
-
-  // Load business profile on mount + listen for start-onboarding + run-workflow events
-  useEffect(() => {
-    loadProfile().then(setBusinessProfile);
-
-    const handleStart = () => startOnboarding();
-    window.addEventListener("flowmind-start-onboarding", handleStart);
-
-    const handleRun = (e: Event) => {
-      const { prompt } = (e as CustomEvent<{ prompt: string }>).detail;
-      handleSend(prompt);
-      setPanelView("run");
-    };
-    window.addEventListener("flowmind-run-workflow", handleRun);
-
-    return () => {
-      window.removeEventListener("flowmind-start-onboarding", handleStart);
-      window.removeEventListener("flowmind-run-workflow", handleRun);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const startOnboarding = useCallback(() => {
-    isOnboardingRef.current = true;
-    setIsOnboarding(true);
-    setMessages([]);
-    setCurrentRun(null);
-    setInputValue("");
-    const q1: ChatMessage = { id: generateId(), role: "assistant", content: ONBOARDING_Q1, timestamp: Date.now() };
-    setMessages([q1]);
-    historyRef.current = [{ role: "assistant", content: ONBOARDING_Q1 }];
-  }, []);
-
-  const handleSend = useCallback(
-    async (text: string) => {
-      if (!text.trim() || isLoading) return;
-
-      const userMsg: ChatMessage = { id: generateId(), role: "user", content: text.trim(), timestamp: Date.now() };
-      setMessages((prev) => [...prev, userMsg]);
-      setInputValue("");
-      setIsLoading(true);
-      setLoadingToolName(undefined);
-
-      let finalMessage = "";
-
-      // ── Onboarding mode ──────────────────────────────────────────────────────
-      if (isOnboardingRef.current) {
-        try {
-          const res = await fetch("/api/onboarding", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text.trim(), conversationHistory: historyRef.current }),
-          });
-
-          if (!res.body) throw new Error("No response body");
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-          let savedProfile: BusinessProfile | null = null;
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n\n");
-            buffer = lines.pop() ?? "";
-            for (const line of lines) {
-              if (!line.startsWith("data: ")) continue;
-              try {
-                const event = JSON.parse(line.slice(6)) as AgentStreamEvent;
-                if (event.type === "text_delta") finalMessage = event.text;
-                if (event.type === "profile_saved") {
-                  savedProfile = await saveProfile(event.profile);
-                  setBusinessProfile(savedProfile);
-                  window.dispatchEvent(new CustomEvent("flowmind-profile-saved"));
-                  isOnboardingRef.current = false;
-                  setIsOnboarding(false);
-                }
-              } catch { /* malformed, skip */ }
-            }
-          }
-
-          historyRef.current = [
-            ...historyRef.current,
-            { role: "user", content: text.trim() },
-            { role: "assistant", content: finalMessage || "Done." },
-          ];
-
-          setMessages((prev) => [...prev, {
-            id: generateId(), role: "assistant",
-            content: finalMessage || "Done.", timestamp: Date.now(),
-          }]);
-        } catch (err) {
-          const error = err instanceof Error ? err.message : String(err);
-          setMessages((prev) => [...prev, {
-            id: generateId(), role: "assistant",
-            content: `Something went wrong: ${error}`, timestamp: Date.now(),
-          }]);
-        }
-
-        setIsLoading(false);
-        return;
-      }
-
-      // ── Normal agent mode ────────────────────────────────────────────────────
-      setPanelView("run");
-
-      const runId = generateId();
-      const run: AgentRun = { id: runId, status: "running", userMessage: text.trim(), toolCalls: [], startedAt: Date.now() };
-      setCurrentRun(run);
-      setCurrentStage(null);
-      setCurrentReflection(null);
-      setCurrentObservation(null);
-
-      const toolsSummary: string[] = [];
-
-      try {
-        const res = await fetch("/api/agent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: text.trim(),
-            conversationHistory: historyRef.current,
-            businessProfile: await loadProfile(),
-            savedWorkflows: await listWorkflows(),
-            runHistory: (await listRunHistory()).slice(0, 20),
-          }),
-        });
-
-        if (!res.body) throw new Error("No response body");
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            try {
-              const event = JSON.parse(line.slice(6)) as AgentStreamEvent;
-              handleStreamEvent(event);
-            } catch { /* malformed, skip */ }
-          }
-        }
-      } catch (err) {
-        const error = err instanceof Error ? err.message : String(err);
-        setCurrentRun((prev) => prev ? { ...prev, status: "failed", completedAt: Date.now() } : prev);
-        finalMessage = `Something went wrong: ${error}`;
-      }
-
-      setMessages((prev) => [...prev, {
-        id: generateId(), role: "assistant", content: finalMessage || "Done.",
-        runId, toolsSummary: toolsSummary.length > 0 ? toolsSummary : undefined, timestamp: Date.now(),
-      }]);
-
-      historyRef.current = [
-        ...historyRef.current,
-        { role: "user", content: text.trim() },
-        { role: "assistant", content: finalMessage || "Done." },
-      ];
-
-      // Persist the completed run to Supabase
-      setCurrentRun((prev) => {
-        if (prev) persistRun(prev).catch(console.error);
-        return prev;
-      });
-
-      setIsLoading(false);
-      setLoadingToolName(undefined);
-
-      function handleStreamEvent(event: AgentStreamEvent) {
-        switch (event.type) {
-          case "tool_call_start": {
-            setLoadingToolName(event.toolName);
-            const tc: ToolCallRecord = { id: event.toolCallId, toolName: event.toolName, status: "calling", input: event.input, startedAt: Date.now() };
-            setCurrentRun((prev) => prev ? { ...prev, toolCalls: [...prev.toolCalls, tc] } : prev);
-            break;
-          }
-          case "tool_call_complete": {
-            setLoadingToolName(undefined);
-            setCurrentRun((prev) => {
-              if (!prev) return prev;
-              const updated = prev.toolCalls.map((tc) =>
-                tc.id === event.toolCallId ? { ...tc, status: "success" as const, output: event.output, completedAt: Date.now() } : tc
-              );
-              return { ...prev, toolCalls: updated };
-            });
-            setCurrentRun((prev) => {
-              if (prev) {
-                const tc = prev.toolCalls.find((t) => t.id === event.toolCallId);
-                if (tc && !toolsSummary.includes(tc.toolName)) toolsSummary.push(tc.toolName);
-              }
-              return prev;
-            });
-            break;
-          }
-          case "tool_call_error": {
-            setLoadingToolName(undefined);
-            setCurrentRun((prev) => {
-              if (!prev) return prev;
-              const updated = prev.toolCalls.map((tc) =>
-                tc.id === event.toolCallId ? { ...tc, status: "error" as const, error: event.error, completedAt: Date.now() } : tc
-              );
-              return { ...prev, toolCalls: updated };
-            });
-            break;
-          }
-          case "text_delta":    finalMessage = event.text; break;
-          case "run_complete":
-            finalMessage = event.finalMessage;
-            setCurrentRun((prev) => prev ? { ...prev, status: "completed", finalMessage: event.finalMessage, completedAt: Date.now() } : prev);
-            setCurrentStage(null);
-            break;
-          case "run_error":
-            setCurrentRun((prev) => prev ? { ...prev, status: "failed", completedAt: Date.now() } : prev);
-            setCurrentStage(null);
-            finalMessage = `Error: ${event.error}`;
-            break;
-          case "agent_stage":
-            setCurrentStage({ stage: event.stage, description: event.description });
-            break;
-          case "reflection_complete":
-            setCurrentReflection(event.reflection);
-            break;
-          case "observation":
-            setCurrentObservation(event.observation);
-            break;
-        }
-      }
-    },
-    [isLoading]
-  );
-
-  const hasActiveRun = currentRun?.status === "running";
-
+export default function LandingPage() {
   return (
-    <div className="flex flex-col h-screen overflow-hidden grid-overlay aurora" style={{ background: "#050508" }}>
-      <TopBar activeView={panelView} onViewChange={setPanelView} hasActiveRun={hasActiveRun} />
+    <div className="min-h-screen" style={{ background: "#050508", color: "#e2e8f0" }}>
 
-      <main className="flex flex-1 overflow-hidden">
-        <div className="w-full md:w-[40%] flex-shrink-0 overflow-hidden" style={{ borderRight: "1px solid #1a1a2e" }}>
-          <ChatPanel
-            messages={messages}
-            isLoading={isLoading}
-            loadingToolName={loadingToolName}
-            onSend={handleSend}
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-            isOnboarding={isOnboarding}
-            hasProfile={!!businessProfile}
-            onStartOnboarding={startOnboarding}
-          />
+      {/* Nav */}
+      <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)" }}
+          >
+            <span style={{ fontSize: 14 }}>⚡</span>
+          </div>
+          <span className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>FlowMind AI</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/auth"
+            className="text-sm px-4 py-1.5 rounded-lg transition-all"
+            style={{ color: "#94a3b8" }}
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/auth?mode=signup"
+            className="text-sm px-4 py-2 rounded-lg font-medium transition-all"
+            style={{ background: "rgba(124,58,237,0.85)", color: "#fff", border: "1px solid rgba(124,58,237,0.4)" }}
+          >
+            Get started free
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="text-center px-6 pt-20 pb-24 max-w-4xl mx-auto">
+        <div
+          className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8"
+          style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.25)", color: "#a78bfa" }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#7c3aed" }} />
+          Autonomous Operations Agent
         </div>
 
-        <div className="hidden md:flex flex-1 overflow-hidden flex-col px-6 py-6">
-          {panelView === "run"      && <AgentRunPanel run={currentRun} currentStage={currentStage} reflection={currentReflection} observation={currentObservation} />}
-          {panelView === "history"  && <RunHistoryPanel />}
-          {panelView === "library"  && <WorkflowLibraryPanel />}
-          {panelView === "settings" && <SettingsPanel businessProfile={businessProfile} />}
+        <h1 className="text-5xl font-bold leading-tight mb-6" style={{ color: "#f1f5f9" }}>
+          The AI that runs your{" "}
+          <span style={{ background: "linear-gradient(135deg, #7c3aed, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            entire operations layer
+          </span>
+        </h1>
+
+        <p className="text-lg mb-10 max-w-2xl mx-auto leading-relaxed" style={{ color: "#64748b" }}>
+          Describe what you want to automate. FlowMind builds the workflow, executes it, and self-heals when things go wrong — no specialists required.
+        </p>
+
+        <div className="flex items-center justify-center gap-4 flex-wrap">
+          <Link
+            href="/auth?mode=signup"
+            className="px-8 py-3 rounded-xl text-sm font-semibold transition-all"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", boxShadow: "0 0 32px rgba(124,58,237,0.35)" }}
+          >
+            Start automating free
+          </Link>
+          <Link
+            href="/auth"
+            className="px-8 py-3 rounded-xl text-sm font-medium transition-all"
+            style={{ background: "rgba(255,255,255,0.04)", color: "#94a3b8", border: "1px solid #1a1a2e" }}
+          >
+            Sign in to your account
+          </Link>
         </div>
-      </main>
+      </section>
+
+      {/* How it works */}
+      <section className="px-6 py-16 max-w-4xl mx-auto">
+        <p className="text-xs font-semibold uppercase tracking-widest mb-10 text-center" style={{ color: "#334155" }}>
+          How it works
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {STEPS.map((s) => (
+            <div
+              key={s.n}
+              className="rounded-2xl p-6"
+              style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+            >
+              <span className="text-xs font-bold mb-3 block" style={{ color: "#7c3aed" }}>{s.n}</span>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: "#e2e8f0" }}>{s.title}</h3>
+              <p className="text-xs leading-relaxed" style={{ color: "#475569" }}>{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="px-6 py-16 max-w-4xl mx-auto">
+        <p className="text-xs font-semibold uppercase tracking-widest mb-10 text-center" style={{ color: "#334155" }}>
+          What it does
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURES.map((f) => (
+            <div
+              key={f.title}
+              className="rounded-2xl p-5"
+              style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+            >
+              <span className="text-xl mb-3 block">{f.icon}</span>
+              <h3 className="text-sm font-semibold mb-1.5" style={{ color: "#e2e8f0" }}>{f.title}</h3>
+              <p className="text-xs leading-relaxed" style={{ color: "#475569" }}>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="px-6 py-20 text-center max-w-2xl mx-auto">
+        <div
+          className="rounded-2xl p-10"
+          style={{ background: "#0d0d12", border: "1px solid rgba(124,58,237,0.2)" }}
+        >
+          <h2 className="text-2xl font-bold mb-3" style={{ color: "#f1f5f9" }}>
+            Ready to automate everything?
+          </h2>
+          <p className="text-sm mb-8" style={{ color: "#475569" }}>
+            Create your account and connect your first integration in under 2 minutes.
+          </p>
+          <Link
+            href="/auth?mode=signup"
+            className="inline-block px-8 py-3 rounded-xl text-sm font-semibold"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", boxShadow: "0 0 32px rgba(124,58,237,0.3)" }}
+          >
+            Create free account
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="px-6 py-8 text-center" style={{ borderTop: "1px solid #1a1a2e" }}>
+        <p className="text-xs" style={{ color: "#1e293b" }}>
+          FlowMind AI — Autonomous Operations Agent
+        </p>
+      </footer>
     </div>
   );
 }

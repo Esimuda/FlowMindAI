@@ -233,10 +233,35 @@ export default function SettingsPanel({ businessProfile }: { businessProfile?: B
         )}
       </div>
 
+      {/* OAuth quick-connect */}
+      <div className="flex-shrink-0 mb-4 rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
+        <p className="text-xs font-semibold mb-3" style={{ color: "#e2e8f0" }}>Quick Connect</p>
+        <div className="flex flex-col gap-2">
+          <a
+            href="/api/oauth/google"
+            className="flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all"
+            style={{ background: "rgba(255,255,255,0.04)", color: "#94a3b8", border: "1px solid #1a1a2e" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "#e2e8f0"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#94a3b8"; }}
+          >
+            <span>G</span> Connect Google (Gmail · Sheets · Calendar)
+          </a>
+          <a
+            href="/api/oauth/slack"
+            className="flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all"
+            style={{ background: "rgba(255,255,255,0.04)", color: "#94a3b8", border: "1px solid #1a1a2e" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "#e2e8f0"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#94a3b8"; }}
+          >
+            <span>#</span> Connect Slack
+          </a>
+        </div>
+      </div>
+
       <div className="flex-shrink-0 mb-4">
         <div className="flex items-center justify-between mb-1">
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#334155" }}>
-            Integrations
+            Manual API Keys
           </p>
           {loading && (
             <span className="text-[10px]" style={{ color: "#334155" }}>Loading...</span>

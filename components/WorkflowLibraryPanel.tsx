@@ -49,10 +49,40 @@ function WorkflowCard({
   const [expanded, setExpanded] = useState(false);
   const [showRun, setShowRun] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
+  const [showWebhook, setShowWebhook] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
+  const [webhookLoading, setWebhookLoading] = useState(false);
+  const [webhookCopied, setWebhookCopied] = useState(false);
   const [runContext, setRunContext] = useState("");
   const [schedule, setSchedule] = useState<ScheduledWorkflow | undefined>(() => getScheduleForWorkflow(saved.id));
   const { blueprint } = saved;
   const safeName = blueprint.name.replace(/\s+/g, "-").toLowerCase();
+
+  const handleGetWebhook = async () => {
+    setWebhookLoading(true);
+    try {
+      const res = await fetch("/api/webhooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workflowName: blueprint.name }),
+      });
+      const { webhook } = await res.json();
+      if (webhook?.id) {
+        setWebhookUrl(`${window.location.origin}/api/webhooks/${webhook.id}`);
+        setShowWebhook(true);
+        setExpanded(true);
+      }
+    } finally {
+      setWebhookLoading(false);
+    }
+  };
+
+  const copyWebhook = () => {
+    if (!webhookUrl) return;
+    navigator.clipboard.writeText(webhookUrl);
+    setWebhookCopied(true);
+    setTimeout(() => setWebhookCopied(false), 2000);
+  };
 
   const refreshSchedule = () => setSchedule(getScheduleForWorkflow(saved.id));
 
@@ -139,6 +169,18 @@ function WorkflowCard({
               {schedule.enabled ? "⏰" : "⏸"}
             </button>
           )}
+          {/* Webhook button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); handleGetWebhook(); }}
+            disabled={webhookLoading}
+            title="Get webhook URL"
+            className="text-[10px] px-2 py-1 rounded-lg transition-all"
+            style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#a78bfa"; e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+          >
+            {webhookLoading ? "..." : "⚡ Webhook"}
+          </button>
           {/* Run button */}
           <button
             onClick={(e) => { e.stopPropagation(); setShowRun((v) => !v); setShowSchedule(false); setExpanded(true); }}
@@ -229,6 +271,33 @@ function WorkflowCard({
           <p className="text-[11px] mt-3 leading-relaxed" style={{ color: "#334155" }}>
             {blueprint.expected_outcome}
           </p>
+
+          {/* Webhook URL */}
+          {showWebhook && webhookUrl && (
+            <div className="mt-3 pt-3" style={{ borderTop: "1px solid #0f0f1a" }}>
+              <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>
+                Webhook URL — POST to trigger this workflow
+              </p>
+              <div className="flex gap-2">
+                <input
+                  readOnly
+                  value={webhookUrl}
+                  className="flex-1 text-[10px] rounded-lg px-2 py-1.5 outline-none font-mono"
+                  style={{ background: "#080810", border: "1px solid #1a1a2e", color: "#475569" }}
+                />
+                <button
+                  onClick={copyWebhook}
+                  className="text-[10px] px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-all"
+                  style={webhookCopied
+                    ? { background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
+                    : { background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }
+                  }
+                >
+                  {webhookCopied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Schedule section */}
           <div className="mt-3 pt-3" style={{ borderTop: "1px solid #0f0f1a" }}>
@@ -345,7 +414,7 @@ export default function WorkflowLibraryPanel() {
   const [search, setSearch] = useState("");
   const [, setScheduleTick] = useState(0);
 
-  const refresh = () => setWorkflows(listWorkflows());
+  const refresh = async () => setWorkflows(await listWorkflows());
   const refreshSchedules = () => setScheduleTick((t) => t + 1);
 
   useEffect(() => {

@@ -11,10 +11,11 @@ interface TopBarProps {
 }
 
 const VIEWS: { id: PanelView; label: string }[] = [
-  { id: "run",      label: "Run" },
-  { id: "history",  label: "History" },
-  { id: "library",  label: "Library" },
-  { id: "settings", label: "Settings" },
+  { id: "run",       label: "Run" },
+  { id: "history",   label: "History" },
+  { id: "library",   label: "Library" },
+  { id: "dashboard", label: "Dashboard" },
+  { id: "settings",  label: "Settings" },
 ];
 
 export default function TopBar({ activeView, onViewChange, hasActiveRun }: TopBarProps) {
@@ -23,7 +24,7 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun }: TopBa
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/auth");
+    router.push("/");
     router.refresh();
   }
 

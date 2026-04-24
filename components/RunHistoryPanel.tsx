@@ -84,7 +84,7 @@ function RunCard({ run }: { run: AgentRun }) {
 export default function RunHistoryPanel() {
   const [runs, setRuns] = useState<AgentRun[]>([]);
 
-  const refresh = () => setRuns(listRunHistory());
+  const refresh = async () => setRuns(await listRunHistory());
 
   useEffect(() => {
     refresh();

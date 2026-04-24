@@ -131,8 +131,8 @@ export default function ChatPanel({
     setConnectedNames(INTEGRATION_META.filter((m) => m.isConnected(cfg)).map((m) => m.name));
   }, []);
 
-  const refreshQuickActions = useCallback(() => {
-    const profile = loadProfile();
+  const refreshQuickActions = useCallback(async () => {
+    const profile = await loadProfile();
     setQuickActions(profile?.commonWorkflows?.slice(0, 3) ?? []);
   }, []);
 

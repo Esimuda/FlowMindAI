@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SavedWorkflow, listWorkflows, deleteWorkflow } from "@/lib/db/workflows";
+import { SavedWorkflow, listWorkflows, deleteWorkflow, saveWorkflow } from "@/lib/db/workflows";
 import { WorkflowBlueprint } from "@/lib/export/n8n";
 import { toN8nJson, toMakeJson } from "@/lib/export/n8n";
 import { toZapierJson } from "@/lib/export/zapier";
@@ -15,6 +15,124 @@ import {
   freqLabel,
   nextRunLabel,
 } from "@/lib/db/schedules";
+
+const TEMPLATES: WorkflowBlueprint[] = [
+  {
+    name: "New Stripe Customer → Notion + Welcome Email",
+    trigger: "New Stripe customer created",
+    steps: [
+      { step: 1, tool: "stripe", action: "Fetch the latest new Stripe customer", output: "customer_data" },
+      { step: 2, tool: "notion", action: "Create a CRM entry in Notion with the customer details", output: "notion_page" },
+      { step: 3, tool: "resend", action: "Send a personalised welcome email to the new customer", output: "email_sent" },
+    ],
+    expected_outcome: "New customer is logged in Notion CRM and receives a welcome email automatically.",
+  },
+  {
+    name: "Weekly Stripe Revenue → Slack Digest",
+    trigger: "Every Monday morning (scheduled)",
+    steps: [
+      { step: 1, tool: "stripe", action: "Fetch all charges from the past 7 days and calculate totals", output: "charges_summary" },
+      { step: 2, tool: "slack", action: "Post a revenue summary with total, count, and top transactions to #revenue", output: "slack_message" },
+    ],
+    expected_outcome: "Team receives a Slack digest of weekly revenue every Monday.",
+  },
+  {
+    name: "HubSpot Lead → Notion CRM + Slack Alert",
+    trigger: "New HubSpot contact created",
+    steps: [
+      { step: 1, tool: "hubspot", action: "Fetch the latest contact from HubSpot", output: "contact_data" },
+      { step: 2, tool: "notion", action: "Add the contact as a new row in the Notion CRM database", output: "notion_entry" },
+      { step: 3, tool: "slack", action: "Notify the sales team in Slack with the new lead details", output: "slack_alert" },
+    ],
+    expected_outcome: "Every new HubSpot lead is logged in Notion and the sales team is alerted on Slack.",
+  },
+  {
+    name: "Daily Airtable Report → Email",
+    trigger: "Every day at 9am (scheduled)",
+    steps: [
+      { step: 1, tool: "airtable", action: "Pull all records updated in the last 24 hours from Airtable", output: "records" },
+      { step: 2, tool: "resend", action: "Format and email a daily summary report to the operations team", output: "report_sent" },
+    ],
+    expected_outcome: "Operations team receives a daily email summary of Airtable activity.",
+  },
+  {
+    name: "GitHub Issue → Linear Ticket + Slack",
+    trigger: "New GitHub issue opened",
+    steps: [
+      { step: 1, tool: "github", action: "Fetch the latest open issue from GitHub", output: "issue_data" },
+      { step: 2, tool: "linear", action: "Create a corresponding ticket in Linear with the same title and description", output: "linear_ticket" },
+      { step: 3, tool: "slack", action: "Post a notification in #engineering with links to both the GitHub issue and Linear ticket", output: "slack_notification" },
+    ],
+    expected_outcome: "Every GitHub issue is mirrored in Linear and the engineering team is notified.",
+  },
+  {
+    name: "Google Sheets KPIs → Slack Weekly Summary",
+    trigger: "Every Friday at 5pm (scheduled)",
+    steps: [
+      { step: 1, tool: "sheets", action: "Read KPI data from the weekly metrics Google Sheet", output: "kpi_data" },
+      { step: 2, tool: "slack", action: "Post a formatted end-of-week KPI summary to #general", output: "slack_post" },
+    ],
+    expected_outcome: "Team receives a weekly KPI summary in Slack sourced directly from Google Sheets.",
+  },
+];
+
+function TemplateCard({ blueprint, onLoad }: { blueprint: WorkflowBlueprint; onLoad: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  const handleLoad = async () => {
+    setLoading(true);
+    try {
+      await saveWorkflow(blueprint);
+      setLoaded(true);
+      onLoad();
+    } catch {
+      // silently fail — user may not be authed
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl mb-2 overflow-hidden" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
+      <div className="flex items-start justify-between gap-3 p-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold leading-snug mb-0.5" style={{ color: "#e2e8f0" }}>
+            {blueprint.name}
+          </p>
+          <p className="text-[10px] truncate mb-1" style={{ color: "#475569" }}>
+            ⚡ {blueprint.trigger}
+          </p>
+          <div className="flex gap-1 flex-wrap">
+            {blueprint.steps.map((s) => (
+              <span
+                key={s.step}
+                className="text-[9px] px-1.5 py-0.5 rounded"
+                style={{ background: "rgba(6,182,212,0.06)", color: "#0e7490", border: "1px solid rgba(6,182,212,0.12)" }}
+              >
+                {s.tool}
+              </span>
+            ))}
+          </div>
+        </div>
+        <button
+          onClick={handleLoad}
+          disabled={loading || loaded}
+          className="flex-shrink-0 text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-all"
+          style={
+            loaded
+              ? { background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
+              : { background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }
+          }
+          onMouseEnter={(e) => { if (!loaded) e.currentTarget.style.background = "rgba(124,58,237,0.2)"; }}
+          onMouseLeave={(e) => { if (!loaded) e.currentTarget.style.background = "rgba(124,58,237,0.1)"; }}
+        >
+          {loading ? "..." : loaded ? "✓ Added" : "Load"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function downloadJson(filename: string, content: string) {
   const blob = new Blob([content], { type: "application/json" });
@@ -417,6 +535,7 @@ export default function WorkflowLibraryPanel() {
   const [workflows, setWorkflows] = useState<SavedWorkflow[]>([]);
   const [search, setSearch] = useState("");
   const [, setScheduleTick] = useState(0);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const refresh = async () => setWorkflows(await listWorkflows());
   const refreshSchedules = () => setScheduleTick((t) => t + 1);
@@ -482,28 +601,38 @@ export default function WorkflowLibraryPanel() {
       {/* List */}
       <div className="flex-1 overflow-y-auto scrollbar-thin min-h-0">
         {workflows.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center py-16">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}
-            >
-              <span className="text-xl">📋</span>
-            </div>
-            <p className="text-sm font-medium mb-1" style={{ color: "#475569" }}>
-              No workflows yet
+          <div>
+            <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
+              Starter Templates
             </p>
-            <p className="text-xs max-w-[200px]" style={{ color: "#1e293b" }}>
-              Ask the agent to &ldquo;build a workflow&rdquo; and it will appear here automatically
-            </p>
+            {TEMPLATES.map((t) => (
+              <TemplateCard key={t.name} blueprint={t} onLoad={refresh} />
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <p className="text-xs text-center pt-8" style={{ color: "#334155" }}>
             No workflows match &ldquo;{search}&rdquo;
           </p>
         ) : (
-          filtered.map((w) => (
-            <WorkflowCard key={w.id} saved={w} onDelete={() => handleDelete(w.id)} onScheduleChange={refreshSchedules} />
-          ))
+          <>
+            {filtered.map((w) => (
+              <WorkflowCard key={w.id} saved={w} onDelete={() => handleDelete(w.id)} onScheduleChange={refreshSchedules} />
+            ))}
+            <div className="mt-2 pt-3" style={{ borderTop: "1px solid #0f0f1a" }}>
+              <button
+                onClick={() => setShowTemplates((v) => !v)}
+                className="text-[10px] uppercase tracking-widest flex items-center gap-1.5 mb-3 transition-all"
+                style={{ color: "#334155" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#a78bfa")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#334155")}
+              >
+                {showTemplates ? "▲" : "▼"} Templates
+              </button>
+              {showTemplates && TEMPLATES.map((t) => (
+                <TemplateCard key={t.name} blueprint={t} onLoad={refresh} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

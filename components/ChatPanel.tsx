@@ -312,7 +312,7 @@ export default function ChatPanel({
               const parent = e.currentTarget.closest("div") as HTMLElement;
               if (parent) parent.style.borderColor = "#1a1a2e";
             }}
-            placeholder="Ask me to do anything — send emails, update Notion, check Stripe..."
+            placeholder=""
             rows={1}
             className="flex-1 bg-transparent text-sm resize-none outline-none leading-relaxed"
             style={{ color: "#e2e8f0", maxHeight: "120px", caretColor: "#7c3aed" }}

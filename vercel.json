@@ -1,4 +1,5 @@
 {
+  "alias": ["operant-ai.vercel.app"],
   "crons": [
     {
       "path": "/api/cron/run-schedules",

@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   // Allow public paths through without auth check
   const isPublic = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith("/auth")
+    (p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith("/auth")
   );
   if (isPublic) return NextResponse.next({ request });
 

@@ -310,7 +310,7 @@ function DashboardInner() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden grid-overlay aurora" style={{ background: "#050508" }}>
+    <div className="flex flex-col h-screen overflow-hidden" style={{ background: "var(--background)" }}>
       <TopBar activeView={panelView} onViewChange={setPanelView} hasActiveRun={hasActiveRun} />
 
       {/* OAuth success toast */}
@@ -327,7 +327,7 @@ function DashboardInner() {
         {/* Chat panel: full screen on mobile when mobileShowPanel=false, 40% on desktop */}
         <div
           className={`flex-shrink-0 overflow-hidden ${mobileShowPanel ? "hidden md:flex md:flex-col" : "flex flex-col"} w-full md:w-[40%]`}
-          style={{ borderRight: "1px solid #1a1a2e" }}
+          style={{ borderRight: "1px solid var(--border)" }}
         >
           <ChatPanel
             messages={messages}

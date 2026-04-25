@@ -38,16 +38,13 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
   return (
     <header
       className="h-14 flex items-center justify-between px-4 md:px-6 flex-shrink-0 relative z-50"
-      style={{ background: "#050508", borderBottom: "1px solid #1a1a2e" }}
+      style={{ background: "var(--background)", borderBottom: "1px solid var(--border)" }}
     >
       {/* Logo */}
       <div className="flex items-center gap-2.5">
         <div
           className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{
-            background: "linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%)",
-            boxShadow: "0 0 12px rgba(124, 58, 237, 0.4)",
-          }}
+          style={{ background: "var(--accent)" }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -58,39 +55,31 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
             />
           </svg>
         </div>
-        <span className="font-semibold tracking-tight text-[15px]" style={{ color: "#e2e8f0" }}>
+        <span className="font-semibold tracking-tight text-[15px]" style={{ color: "var(--foreground)" }}>
           Operant{" "}
-          <span
-            style={{
-              background: "linear-gradient(90deg, #7c3aed, #06b6d4)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            AI
-          </span>
+          <span style={{ color: "var(--accent)" }}>AI</span>
         </span>
 
         {/* Workspace badge — desktop only */}
         {workspaceName && (
           <span
             className="hidden md:inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ml-1"
-            style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
+            style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.25)" }}
           >
-            <span className="w-1 h-1 rounded-full" style={{ background: "#7c3aed" }} />
+            <span className="w-1 h-1 rounded-full" style={{ background: "var(--accent)" }} />
             {workspaceName}
           </span>
         )}
       </div>
 
-      {/* Desktop nav: sign out + view toggle */}
+      {/* Desktop nav */}
       <div className="hidden md:flex items-center gap-3">
         <Link
           href="/workspaces"
           className="text-xs px-3 py-1.5 rounded-lg transition-all"
-          style={{ color: "#475569" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#94a3b8"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#475569"; }}
+          style={{ color: "var(--foreground-3)" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--foreground-2)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--foreground-3)"; }}
         >
           Team
         </Link>
@@ -98,17 +87,17 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
         <button
           onClick={handleSignOut}
           className="text-xs px-3 py-1.5 rounded-lg transition-all"
-          style={{ color: "#475569", border: "1px solid transparent" }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "transparent"; }}
+          style={{ color: "var(--foreground-3)", border: "1px solid transparent" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--foreground-2)"; e.currentTarget.style.borderColor = "var(--border)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; e.currentTarget.style.borderColor = "transparent"; }}
         >
           Sign out
         </button>
 
         {/* View toggle */}
         <div
-          className="flex items-center gap-1 rounded-lg p-1"
-          style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+          className="flex items-center gap-0.5 rounded-lg p-1"
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
           {VIEWS.map(({ id, label }) => {
             const isActive = activeView === id;
@@ -119,15 +108,11 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
                 className="px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 relative"
                 style={
                   isActive
-                    ? {
-                        background: "linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)",
-                        color: "#fff",
-                        boxShadow: "0 0 10px rgba(124, 58, 237, 0.3)",
-                      }
-                    : { color: "#64748b" }
+                    ? { background: "var(--accent)", color: "#fff" }
+                    : { color: "var(--foreground-3)" }
                 }
-                onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#94a3b8"; }}
-                onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "#64748b"; }}
+                onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "var(--foreground-2)"; }}
+                onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "var(--foreground-3)"; }}
               >
                 {label}
                 {id === "run" && hasActiveRun && (
@@ -147,12 +132,15 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
         <button
           onClick={() => setMenuOpen((o) => !o)}
           className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-          style={{ background: menuOpen ? "#0d0d12" : "transparent", border: menuOpen ? "1px solid #1a1a2e" : "1px solid transparent" }}
+          style={{
+            background: menuOpen ? "var(--surface)" : "transparent",
+            border: menuOpen ? "1px solid var(--border)" : "1px solid transparent",
+          }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="4" r="1.2" fill="#64748b" />
-            <circle cx="8" cy="8" r="1.2" fill="#64748b" />
-            <circle cx="8" cy="12" r="1.2" fill="#64748b" />
+            <circle cx="8" cy="4" r="1.2" fill="var(--foreground-3)" />
+            <circle cx="8" cy="8" r="1.2" fill="var(--foreground-3)" />
+            <circle cx="8" cy="12" r="1.2" fill="var(--foreground-3)" />
           </svg>
         </button>
 
@@ -160,16 +148,16 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
           <>
             <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
             <div
-              className="absolute right-0 top-11 w-44 rounded-xl py-1 z-50 shadow-2xl"
-              style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+              className="absolute right-0 top-11 w-44 rounded-xl py-1 z-50 shadow-lg"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
             >
               <Link
                 href="/workspaces"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm w-full text-left transition-all"
-                style={{ color: "#94a3b8" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#e2e8f0"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#94a3b8"; }}
+                style={{ color: "var(--foreground-2)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--foreground)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--foreground-2)"; }}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <circle cx="7" cy="5" r="2" stroke="currentColor" strokeWidth="1.3" />
@@ -179,13 +167,13 @@ export default function TopBar({ activeView, onViewChange, hasActiveRun, workspa
                 </svg>
                 Team
               </Link>
-              <div style={{ height: "1px", background: "#1a1a2e", margin: "4px 0" }} />
+              <div style={{ height: "1px", background: "var(--border)", margin: "4px 0" }} />
               <button
                 onClick={() => { setMenuOpen(false); handleSignOut(); }}
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm w-full text-left transition-all"
-                style={{ color: "#94a3b8" }}
+                style={{ color: "var(--foreground-2)" }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#94a3b8"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-2)"; }}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M5 12H3a1 1 0 01-1-1V3a1 1 0 011-1h2M9.5 9.5L12 7l-2.5-2.5M12 7H5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />

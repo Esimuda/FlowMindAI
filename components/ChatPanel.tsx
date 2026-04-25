@@ -30,20 +30,24 @@ function TypingIndicator({ toolName }: { toolName?: string }) {
   return (
     <div className="flex gap-3">
       <div
-        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs"
-        style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#7c3aed" }}
+        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+        style={{ background: "var(--accent)", color: "#fff" }}
       >
-        ⚡
+        O
       </div>
       <div
         className="px-4 py-3"
-        style={{ background: "#0d0d12", border: "1px solid #1a1a2e", borderRadius: "4px 18px 18px 18px" }}
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "4px 18px 18px 18px",
+        }}
       >
         {toolName ? (
-          <span className="text-xs flex items-center gap-2" style={{ color: "#a78bfa" }}>
+          <span className="text-xs flex items-center gap-2" style={{ color: "var(--accent)" }}>
             <span
               className="w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-              style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }}
+              style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}
             />
             Calling {toolName}...
           </span>
@@ -53,7 +57,7 @@ function TypingIndicator({ toolName }: { toolName?: string }) {
               <span
                 key={i}
                 className="w-1.5 h-1.5 rounded-full animate-bounce"
-                style={{ animationDelay: `${delay}ms`, background: i === 0 ? "#7c3aed" : i === 1 ? "#9b5de5" : "#06b6d4" }}
+                style={{ animationDelay: `${delay}ms`, background: "var(--accent)", opacity: i === 0 ? 1 : i === 1 ? 0.7 : 0.4 }}
               />
             ))}
           </div>
@@ -72,19 +76,28 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
         style={
           isUser
-            ? { background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", boxShadow: "0 0 8px rgba(124,58,237,0.4)" }
-            : { background: "#0d0d12", border: "1px solid #1a1a2e", color: "#7c3aed" }
+            ? { background: "var(--accent)", color: "#fff" }
+            : { background: "var(--surface)", border: "1px solid var(--border)", color: "var(--accent)" }
         }
       >
-        {isUser ? "U" : "⚡"}
+        {isUser ? "U" : "O"}
       </div>
 
       <div
         className="max-w-[80%] px-4 py-3 text-sm leading-relaxed"
         style={
           isUser
-            ? { background: "linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)", color: "#fff", borderRadius: "18px 4px 18px 18px", boxShadow: "0 0 16px rgba(124,58,237,0.2)" }
-            : { background: "#0d0d12", color: "#cbd5e1", border: "1px solid #1a1a2e", borderRadius: "4px 18px 18px 18px" }
+            ? {
+                background: "var(--accent)",
+                color: "#fff",
+                borderRadius: "18px 4px 18px 18px",
+              }
+            : {
+                background: "var(--surface)",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
+                borderRadius: "4px 18px 18px 18px",
+              }
         }
       >
         <div
@@ -93,12 +106,12 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         />
 
         {message.toolsSummary && message.toolsSummary.length > 0 && (
-          <div className="mt-2 pt-2 flex flex-wrap gap-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="mt-2 pt-2 flex flex-wrap gap-1" style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }}>
             {message.toolsSummary.map((t) => (
               <span
                 key={t}
                 className="text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
+                style={{ background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.2)" }}
               >
                 {t}
               </span>
@@ -167,15 +180,15 @@ export default function ChatPanel({
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#08080c" }}>
+    <div className="flex flex-col h-full" style={{ background: "var(--background)" }}>
       {/* Onboarding mode banner */}
       {isOnboarding && (
         <div
           className="flex-shrink-0 flex items-center gap-2 px-4 py-2"
-          style={{ background: "rgba(124,58,237,0.08)", borderBottom: "1px solid rgba(124,58,237,0.2)" }}
+          style={{ background: "var(--accent-glow)", borderBottom: "1px solid rgba(218,119,86,0.25)" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "#a78bfa" }} />
-          <span className="text-[11px] font-medium" style={{ color: "#a78bfa" }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: "var(--accent)" }} />
+          <span className="text-[11px] font-medium" style={{ color: "var(--accent)" }}>
             Business Setup — answer the questions to personalise your agent
           </span>
         </div>
@@ -185,16 +198,24 @@ export default function ChatPanel({
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin">
         {isEmpty && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4 pb-8">
+            {/* Logo mark */}
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1))", border: "1px solid rgba(124,58,237,0.25)" }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+              style={{ background: "var(--accent)" }}
             >
-              <span className="text-xl">⚡</span>
+              <svg width="22" height="22" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M2 7h3M7 2v3M7 9v3M9 7h3M4.5 4.5l1.5 1.5M8 8l1.5 1.5M9.5 4.5L8 6M4.5 9.5L6 8"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
-            <h2 className="font-semibold text-lg mb-1" style={{ color: "#e2e8f0" }}>
-              Operant AI
+            <h2 className="font-semibold text-lg mb-2" style={{ color: "var(--foreground)" }}>
+              How can I help you today?
             </h2>
-            <p className="text-sm mb-6 max-w-xs leading-relaxed" style={{ color: "#475569" }}>
+            <p className="text-sm mb-6 max-w-xs leading-relaxed" style={{ color: "var(--foreground-2)" }}>
               Your AI operations agent. Ask me to execute tasks, build workflows, or query your tools.
             </p>
 
@@ -203,12 +224,16 @@ export default function ChatPanel({
               <button
                 onClick={onStartOnboarding}
                 className="w-full mb-5 py-3 rounded-xl text-sm font-semibold transition-all"
-                style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.08))", border: "1px solid rgba(124,58,237,0.3)", color: "#c4b5fd" }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.6)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")}
+                style={{
+                  background: "var(--accent-glow)",
+                  border: "1px solid rgba(218,119,86,0.35)",
+                  color: "var(--accent)",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.6)")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.35)")}
               >
-                ✦ Set up your business profile
-                <span className="block text-[10px] font-normal mt-0.5" style={{ color: "#7c3aed" }}>
+                Set up your business profile
+                <span className="block text-[10px] font-normal mt-0.5" style={{ color: "var(--foreground-2)" }}>
                   Takes 2 minutes · Makes the agent 10× more useful
                 </span>
               </button>
@@ -217,7 +242,7 @@ export default function ChatPanel({
             {/* Suggested actions from business profile */}
             {quickActions.length > 0 && (
               <div className="w-full mb-5">
-                <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>
+                <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "var(--foreground-3)" }}>
                   Your workflows
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -238,7 +263,7 @@ export default function ChatPanel({
             )}
 
             <div className="w-full space-y-2">
-              <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
+              <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: "var(--foreground-3)" }}>
                 Try an example
               </p>
               {PLACEHOLDER_PROMPTS.map((prompt, i) => (
@@ -246,9 +271,19 @@ export default function ChatPanel({
                   key={i}
                   onClick={() => { onInputChange(prompt); textareaRef.current?.focus(); }}
                   className="w-full text-left text-xs rounded-xl px-4 py-3 transition-all duration-150 leading-relaxed"
-                  style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#64748b" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "#94a3b8"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#64748b"; }}
+                  style={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    color: "var(--foreground-2)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(218,119,86,0.4)";
+                    e.currentTarget.style.color = "var(--foreground)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border)";
+                    e.currentTarget.style.color = "var(--foreground-2)";
+                  }}
                 >
                   &ldquo;{prompt}&rdquo;
                 </button>
@@ -267,12 +302,15 @@ export default function ChatPanel({
       </div>
 
       {/* Connected integrations strip */}
-      <div className="flex-shrink-0 px-4 py-2 flex items-center gap-2 flex-wrap" style={{ borderTop: "1px solid #0f0f1a" }}>
-        <span className="text-[9px] uppercase tracking-widest flex-shrink-0" style={{ color: "#1e293b" }}>
+      <div
+        className="flex-shrink-0 px-4 py-2 flex items-center gap-2 flex-wrap"
+        style={{ borderTop: "1px solid var(--border-subtle)" }}
+      >
+        <span className="text-[9px] uppercase tracking-widest flex-shrink-0" style={{ color: "var(--foreground-muted)" }}>
           Active
         </span>
         {connectedNames.length === 0 ? (
-          <span className="text-[10px]" style={{ color: "#1e293b" }}>
+          <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>
             No integrations connected — add API keys in Settings
           </span>
         ) : (
@@ -290,10 +328,10 @@ export default function ChatPanel({
       </div>
 
       {/* Input area */}
-      <div className="flex-shrink-0 px-4 pb-4 pt-3" style={{ borderTop: "1px solid #1a1a2e" }}>
+      <div className="flex-shrink-0 px-4 pb-4 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
         <div
           className="flex items-end gap-2 rounded-2xl px-4 py-3 transition-all duration-200"
-          style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
           <textarea
             ref={textareaRef}
@@ -306,16 +344,16 @@ export default function ChatPanel({
             onKeyDown={handleKeyDown}
             onFocus={(e) => {
               const parent = e.currentTarget.closest("div") as HTMLElement;
-              if (parent) parent.style.borderColor = "rgba(124,58,237,0.45)";
+              if (parent) parent.style.borderColor = "rgba(218,119,86,0.5)";
             }}
             onBlur={(e) => {
               const parent = e.currentTarget.closest("div") as HTMLElement;
-              if (parent) parent.style.borderColor = "#1a1a2e";
+              if (parent) parent.style.borderColor = "var(--border)";
             }}
-            placeholder=""
+            placeholder="Message Operant AI..."
             rows={1}
-            className="flex-1 bg-transparent text-sm resize-none outline-none leading-relaxed"
-            style={{ color: "#e2e8f0", maxHeight: "120px", caretColor: "#7c3aed" }}
+            className="flex-1 bg-transparent text-sm resize-none outline-none leading-relaxed placeholder:text-[var(--foreground-3)]"
+            style={{ color: "var(--foreground)", maxHeight: "120px", caretColor: "var(--accent)" }}
             disabled={isLoading}
           />
           <button
@@ -324,22 +362,34 @@ export default function ChatPanel({
             className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 mb-0.5"
             style={
               inputValue.trim() && !isLoading
-                ? { background: "linear-gradient(135deg, #7c3aed, #5b21b6)", boxShadow: "0 0 12px rgba(124,58,237,0.4)" }
-                : { background: "#1a1a2e", cursor: "not-allowed" }
+                ? { background: "var(--accent)" }
+                : { background: "var(--surface-2)", cursor: "not-allowed" }
             }
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 11.5V2.5M7 2.5L3 6.5M7 2.5L11 6.5" stroke={inputValue.trim() && !isLoading ? "#fff" : "#334155"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M7 11.5V2.5M7 2.5L3 6.5M7 2.5L11 6.5"
+                stroke={inputValue.trim() && !isLoading ? "#fff" : "var(--foreground-muted)"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </div>
-        <p className="text-[10px] text-center mt-2" style={{ color: "#1e293b" }}>
+        <p className="text-[10px] text-center mt-2" style={{ color: "var(--foreground-muted)" }}>
           Press{" "}
-          <kbd className="px-1 py-0.5 rounded text-[9px]" style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#334155" }}>
+          <kbd
+            className="px-1 py-0.5 rounded text-[9px]"
+            style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--foreground-3)" }}
+          >
             Enter
           </kbd>{" "}
           to send ·{" "}
-          <kbd className="px-1 py-0.5 rounded text-[9px]" style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#334155" }}>
+          <kbd
+            className="px-1 py-0.5 rounded text-[9px]"
+            style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--foreground-3)" }}
+          >
             Shift+Enter
           </kbd>{" "}
           for new line

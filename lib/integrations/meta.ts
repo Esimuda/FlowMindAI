@@ -9,7 +9,7 @@ export interface IntegrationMeta {
 export const INTEGRATION_META: IntegrationMeta[] = [
   {
     name: "Notion",
-    tools: ["notion_create_page", "notion_query_database"],
+    tools: ["notion_create_database", "notion_create_page", "notion_query_database"],
     isConnected: (c) => !!c.notionApiKey,
   },
   {

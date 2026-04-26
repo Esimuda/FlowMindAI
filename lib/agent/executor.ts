@@ -60,11 +60,18 @@ async function dispatch(
     case "notion_create_database": {
       const apiKey = config.notionApiKey;
       if (!apiKey) throw new Error("Notion is not connected. Please add NOTION_API_KEY.");
+      let parentId = input.parent_page_id as string | undefined;
+      // If no valid parent given, auto-resolve from the configured database's parent page
+      if (!parentId || ["root", "workspace", "undefined", ""].includes(parentId.toLowerCase())) {
+        if (config.notionDatabaseId) {
+          parentId = await notion.getDatabaseParentPageId(apiKey, config.notionDatabaseId);
+        }
+      }
       return notion.createDatabase(
         apiKey,
         input.title as string,
         (input.columns as Record<string, "rich_text" | "email" | "number" | "select" | "date" | "checkbox" | "url" | "phone_number">) ?? {},
-        input.parent_page_id as string | undefined
+        parentId
       );
     }
 

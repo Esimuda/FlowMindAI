@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AgentRun } from "@/lib/types";
-import { listRunHistory, clearRunHistory } from "@/lib/db/runHistory";
+import { listRunHistory, clearRunHistory, deleteRun } from "@/lib/db/runHistory";
 import ToolCallCard from "./ToolCallCard";
 
 function elapsed(startedAt: number, completedAt?: number): string {
@@ -19,7 +19,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(diff / 86400000)}d ago`;
 }
 
-function RunCard({ run }: { run: AgentRun }) {
+function RunCard({ run, onDelete }: { run: AgentRun; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
 
   const borderColor =
@@ -41,9 +41,21 @@ function RunCard({ run }: { run: AgentRun }) {
         >
           {run.userMessage}
         </p>
-        <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: statusColor }}>
-          {run.status}
-        </span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-[10px] font-semibold" style={{ color: statusColor }}>
+            {run.status}
+          </span>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(run.id); }}
+            className="text-[10px] leading-none transition-colors"
+            style={{ color: "var(--foreground-muted)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-muted)")}
+            title="Delete run"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between mb-2">
@@ -95,9 +107,14 @@ export default function RunHistoryPanel() {
     return () => window.removeEventListener("operant-run-saved", refresh);
   }, []);
 
+  const handleDelete = (id: string) => {
+    setRuns((prev) => prev.filter((r) => r.id !== id));
+    deleteRun(id);
+  };
+
   const handleClear = () => {
+    setRuns([]);
     clearRunHistory();
-    refresh();
   };
 
   return (
@@ -147,7 +164,7 @@ export default function RunHistoryPanel() {
             </p>
           </div>
         ) : (
-          runs.map((run) => <RunCard key={run.id} run={run} />)
+          runs.map((run) => <RunCard key={run.id} run={run} onDelete={handleDelete} />)
         )}
       </div>
     </div>

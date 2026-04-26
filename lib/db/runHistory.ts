@@ -45,6 +45,14 @@ export async function listRunHistory(): Promise<AgentRun[]> {
   return data.map((row) => row.run as AgentRun);
 }
 
+export async function deleteRun(id: string): Promise<void> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("run_history").delete().eq("id", id).eq("user_id", user.id);
+  window.dispatchEvent(new CustomEvent("operant-run-saved"));
+}
+
 export async function clearRunHistory(): Promise<void> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();

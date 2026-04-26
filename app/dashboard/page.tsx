@@ -46,6 +46,8 @@ function DashboardInner() {
 
   const historyRef = useRef<Anthropic.MessageParam[]>([]);
   const isOnboardingRef = useRef(false);
+  const cachedWorkflowsRef = useRef<Awaited<ReturnType<typeof listWorkflows>>>([]);
+  const cachedRunHistoryRef = useRef<AgentRun[]>([]);
 
   useScheduler();
 
@@ -59,9 +61,18 @@ function DashboardInner() {
     }
   }, [searchParams]);
 
+  // Preload all agent context on mount so first send is instant
+  useEffect(() => {
+    Promise.all([
+      loadProfile().then(setBusinessProfile),
+      listWorkflows().then((w) => { cachedWorkflowsRef.current = w; }),
+      listRunHistory().then((r) => { cachedRunHistoryRef.current = r.slice(0, 20); }),
+    ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Load business profile on mount + listen for start-onboarding + run-workflow events
   useEffect(() => {
-    loadProfile().then(setBusinessProfile);
 
     const handleStart = () => startOnboarding();
     window.addEventListener("operant-start-onboarding", handleStart);
@@ -182,9 +193,9 @@ function DashboardInner() {
           body: JSON.stringify({
             message: text.trim(),
             conversationHistory: historyRef.current,
-            businessProfile: await loadProfile(),
-            savedWorkflows: await listWorkflows(),
-            runHistory: (await listRunHistory()).slice(0, 20),
+            businessProfile: businessProfile,
+            savedWorkflows: cachedWorkflowsRef.current,
+            runHistory: cachedRunHistoryRef.current,
           }),
         });
 
@@ -227,11 +238,16 @@ function DashboardInner() {
         { role: "assistant", content: (finalMessage || "Done.") + toolContext },
       ];
 
-      // Persist the completed run to Supabase
+      // Persist the completed run to Supabase and refresh cache
       setCurrentRun((prev) => {
-        if (prev) persistRun(prev).catch(console.error);
+        if (prev) {
+          persistRun(prev).then(() => {
+            listRunHistory().then((r) => { cachedRunHistoryRef.current = r.slice(0, 20); });
+          }).catch(console.error);
+        }
         return prev;
       });
+      listWorkflows().then((w) => { cachedWorkflowsRef.current = w; }).catch(console.error);
 
       setIsLoading(false);
       setLoadingToolName(undefined);

@@ -18,6 +18,30 @@ function sanitizeId(raw: string): string {
   return hex;
 }
 
+export async function searchPages(apiKey: string): Promise<string> {
+  const notion = client(apiKey);
+
+  const response = await notion.request<{
+    results: Array<{ id: string; object: string; properties?: Record<string, unknown>; title?: Array<{ plain_text: string }> }>;
+  }>({
+    path: "search",
+    method: "post",
+    body: { filter: { property: "object", value: "page" }, page_size: 10 },
+  });
+
+  if (response.results.length === 0) {
+    return "No pages found. Make sure at least one Notion page is shared with your integration.";
+  }
+
+  const pages = response.results.map((p) => {
+    const titleArr = p.title ?? (p.properties?.title as { title: Array<{ plain_text: string }> } | undefined)?.title ?? [];
+    const name = titleArr.map((t) => t.plain_text).join("") || "Untitled";
+    return `${name} (id: ${p.id.replace(/-/g, "")})`;
+  });
+
+  return `Accessible pages:\n${pages.join("\n")}\n\nUse one of these IDs as parent_page_id when creating a database.`;
+}
+
 export async function createDatabase(
   apiKey: string,
   title: string,

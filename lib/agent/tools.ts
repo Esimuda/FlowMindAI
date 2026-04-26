@@ -4,6 +4,16 @@ import { INTEGRATION_META } from "@/lib/integrations/meta";
 
 export const AGENT_TOOLS: Anthropic.Tool[] = [
   {
+    name: "notion_search_pages",
+    description:
+      "Find Notion pages accessible to the integration. Use this to get a valid parent_page_id before calling notion_create_database.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
     name: "notion_create_database",
     description:
       "Create a new Notion database (table) with defined columns inside a parent page. Use this when the user needs a new table structure — do not assume a database already exists.",

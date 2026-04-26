@@ -84,7 +84,8 @@ NOT CONNECTED (never call tools for these — direct the user to add credentials
 ${disconnectedSection}
 
 Available tools:
-- notion_create_database — create a new Notion database with defined columns (use when the user needs a table built from scratch)
+- notion_search_pages — find accessible Notion pages; always call this first to get a parent_page_id before calling notion_create_database
+- notion_create_database — create a new Notion database with defined columns (always call notion_search_pages first to get the parent_page_id)
 - notion_create_page / notion_query_database — Notion databases
 - send_email — email via Resend
 - slack_send_message — Slack notifications

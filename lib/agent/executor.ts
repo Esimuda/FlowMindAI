@@ -51,6 +51,12 @@ async function dispatch(
   context?: RunContext
 ): Promise<string> {
   switch (toolName) {
+    case "notion_search_pages": {
+      const apiKey = config.notionApiKey;
+      if (!apiKey) throw new Error("Notion is not connected. Please add NOTION_API_KEY.");
+      return notion.searchPages(apiKey);
+    }
+
     case "notion_create_database": {
       const apiKey = config.notionApiKey;
       if (!apiKey) throw new Error("Notion is not connected. Please add NOTION_API_KEY.");

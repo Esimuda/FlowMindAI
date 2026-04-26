@@ -218,10 +218,13 @@ function DashboardInner() {
         runId, toolsSummary: toolsSummary.length > 0 ? toolsSummary : undefined, timestamp: Date.now(),
       }]);
 
+      const toolContext = toolsSummary.length > 0
+        ? `\n[Tools used: ${toolsSummary.join(", ")}]`
+        : "";
       historyRef.current = [
         ...historyRef.current,
         { role: "user", content: text.trim() },
-        { role: "assistant", content: finalMessage || "Done." },
+        { role: "assistant", content: (finalMessage || "Done.") + toolContext },
       ];
 
       // Persist the completed run to Supabase

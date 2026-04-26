@@ -47,7 +47,17 @@ function formatMemorySection(memories: MemoryEntry[]): string {
   return `\nMEMORY (apply this context — don't ask for information you already know):\n${lines.join("\n")}\n`;
 }
 
-function buildSystemPrompt(config: IntegrationConfig, profile?: BusinessProfile | null, customTools: CustomTool[] = [], memoryContext?: MemoryEntry[]): string {
+function formatRecentRuns(runHistory: AgentRun[]): string {
+  if (runHistory.length === 0) return "";
+  const lines = runHistory.slice(0, 5).map((r, i) => {
+    const tools = [...new Set(r.toolCalls.map((tc) => tc.toolName))];
+    const toolPart = tools.length > 0 ? ` (used: ${tools.join(", ")})` : "";
+    return `  ${i + 1}. "${r.userMessage}" — ${r.status}${toolPart}`;
+  });
+  return `\nRECENT RUNS (use this to understand repeat or follow-up requests like "do it again" or "run that again"):\n${lines.join("\n")}\n`;
+}
+
+function buildSystemPrompt(config: IntegrationConfig, profile?: BusinessProfile | null, customTools: CustomTool[] = [], memoryContext?: MemoryEntry[], runHistory?: AgentRun[]): string {
   const connected = INTEGRATION_META.filter((m) => m.isConnected(config));
   const disconnected = INTEGRATION_META.filter((m) => !m.isConnected(config));
 
@@ -63,9 +73,10 @@ function buildSystemPrompt(config: IntegrationConfig, profile?: BusinessProfile 
 
   const businessContext = profile ? buildBusinessContext(profile) : "";
   const memorySection = memoryContext ? formatMemorySection(memoryContext) : "";
+  const recentRunsSection = runHistory ? formatRecentRuns(runHistory) : "";
 
   return `You are Operant AI — an intelligent operations agent built for automation and operations professionals.
-${businessContext}${memorySection}
+${businessContext}${memorySection}${recentRunsSection}
 CONNECTED INTEGRATIONS (you may use these tools):
 ${connectedSection}
 
@@ -170,7 +181,7 @@ export async function runAgent(options: RunnerOptions): Promise<string> {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
-      system: buildSystemPrompt(config, businessProfile, customTools, memoryContext),
+      system: buildSystemPrompt(config, businessProfile, customTools, memoryContext, runHistory),
       tools: [...getActiveTools(config), ...customToolDefs],
       messages,
     });

@@ -211,5 +211,5 @@ function buildExecutionMessage(
 Planned steps:
 ${stepLines}
 
-Execute all steps using the specified tools. Report results.`;
+Execute all steps using the specified tools. When done, output a Run Report in the exact format from your instructions: what ran, what succeeded with key outputs, and what failed with the error and a fix suggestion.`;
 }

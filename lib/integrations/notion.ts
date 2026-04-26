@@ -4,6 +4,17 @@ function client(apiKey: string) {
   return new Client({ auth: apiKey });
 }
 
+// Extracts a clean 32-char hex UUID from whatever the user pasted (full URL, with dashes, etc.)
+function sanitizeId(raw: string): string {
+  const hex = raw.replace(/[^0-9a-f]/gi, "");
+  if (hex.length !== 32) {
+    throw new Error(
+      `Invalid Notion ID "${raw.slice(0, 80)}": expected a 32-character hex ID. Copy the ID from your Notion database URL or the Settings panel.`
+    );
+  }
+  return hex;
+}
+
 export async function createPage(
   apiKey: string,
   databaseId: string,
@@ -31,7 +42,7 @@ export async function createPage(
     : [];
 
   const page = await notion.pages.create({
-    parent: { database_id: databaseId },
+    parent: { database_id: sanitizeId(databaseId) },
     properties: builtProps as Parameters<typeof notion.pages.create>[0]["properties"],
     children: children as Parameters<typeof notion.pages.create>[0]["children"],
   });
@@ -49,7 +60,7 @@ export async function queryDatabase(
   const notion = client(apiKey);
 
   const queryParams: Parameters<typeof notion.databases.query>[0] = {
-    database_id: databaseId.replace(/-/g, "").replace(/\s/g, ""),
+    database_id: sanitizeId(databaseId),
     page_size: Math.min(pageSize, 25),
   };
 

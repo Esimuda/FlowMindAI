@@ -17,7 +17,7 @@ interface SubscriptionData {
 }
 
 const PLAN_LABELS: Record<Plan, string> = { free: "Starter", pro: "Pro", business: "Business" };
-const PLAN_COLORS: Record<Plan, string> = { free: "#64748b", pro: "#7c3aed", business: "#06b6d4" };
+const PLAN_COLORS: Record<Plan, string> = { free: "var(--foreground-3)", pro: "var(--accent)", business: "var(--accent)" };
 
 const UPGRADE_OPTIONS = [
   {
@@ -39,21 +39,21 @@ const UPGRADE_OPTIONS = [
 function UsageBar({ used, limit, label }: { used: number; limit: number; label: string }) {
   const unlimited = limit === -1;
   const pct = unlimited ? 0 : Math.min((used / limit) * 100, 100);
-  const color = pct > 85 ? "#ef4444" : pct > 60 ? "#eab308" : "#7c3aed";
+  const color = pct > 85 ? "#ef4444" : pct > 60 ? "#eab308" : "var(--accent)";
 
   return (
     <div>
       <div className="flex justify-between items-center mb-1.5">
-        <span className="text-xs" style={{ color: "#94a3b8" }}>{label}</span>
-        <span className="text-xs font-medium" style={{ color: "#e2e8f0" }}>
+        <span className="text-xs" style={{ color: "var(--foreground-2)" }}>{label}</span>
+        <span className="text-xs font-medium" style={{ color: "var(--foreground)" }}>
           {used.toLocaleString()} / {unlimited ? "∞" : limit.toLocaleString()}
         </span>
       </div>
       {!unlimited && (
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#1a1a2e" }}>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
           <div
             className="h-full rounded-full transition-all"
-            style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}aa)` }}
+            style={{ width: `${pct}%`, background: color }}
           />
         </div>
       )}
@@ -122,16 +122,27 @@ function BillingInner() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#050508", color: "#e2e8f0" }}>
+    <div className="min-h-screen" style={{ background: "var(--background)", color: "var(--foreground)" }}>
       {/* Nav */}
-      <header className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "#1a1a2e" }}>
+      <header className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "var(--border)" }}>
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#7c3aed,#06b6d4)", boxShadow: "0 0 12px rgba(124,58,237,0.4)" }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h3M7 2v3M7 9v3M9 7h3M4.5 4.5l1.5 1.5M8 8l1.5 1.5M9.5 4.5L8 6M4.5 9.5L6 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ background: "var(--accent)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h3M7 2v3M7 9v3M9 7h3M4.5 4.5l1.5 1.5M8 8l1.5 1.5M9.5 4.5L8 6M4.5 9.5L6 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </div>
-          <span className="font-semibold text-[15px]">Operant <span style={{ background: "linear-gradient(90deg,#7c3aed,#06b6d4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>AI</span></span>
+          <span className="font-semibold text-[15px]">Operant <span style={{ color: "var(--accent)" }}>AI</span></span>
         </Link>
-        <Link href="/dashboard" className="text-sm px-4 py-2 rounded-lg" style={{ color: "#64748b", border: "1px solid #1a1a2e" }}>← Dashboard</Link>
+        <Link
+          href="/dashboard"
+          className="text-sm px-4 py-2 rounded-lg"
+          style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
+        >
+          ← Dashboard
+        </Link>
       </header>
 
       {/* Toast */}
@@ -150,21 +161,21 @@ function BillingInner() {
       )}
 
       <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold mb-2">Billing</h1>
-        <p className="text-sm mb-10" style={{ color: "#64748b" }}>Manage your plan and usage.</p>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--foreground)" }}>Billing</h1>
+        <p className="text-sm mb-10" style={{ color: "var(--foreground-3)" }}>Manage your plan and usage.</p>
 
         {loading ? (
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }} />
-            <span className="text-sm" style={{ color: "#475569" }}>Loading...</span>
+            <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+            <span className="text-sm" style={{ color: "var(--foreground-3)" }}>Loading...</span>
           </div>
         ) : data ? (
           <div className="space-y-6">
             {/* Current plan card */}
-            <div className="rounded-2xl p-6" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
+            <div className="rounded-2xl p-6" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#334155" }}>Current plan</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--foreground-muted)" }}>Current plan</p>
                   <div className="flex items-center gap-3">
                     <h2 className="text-2xl font-bold" style={{ color: PLAN_COLORS[data.plan] }}>
                       {PLAN_LABELS[data.plan]}
@@ -181,7 +192,7 @@ function BillingInner() {
                     </span>
                   </div>
                   {data.currentPeriodEnd && (
-                    <p className="text-xs mt-1" style={{ color: "#475569" }}>
+                    <p className="text-xs mt-1" style={{ color: "var(--foreground-3)" }}>
                       {data.cancelAtPeriodEnd ? "Cancels on" : "Renews on"}{" "}
                       {new Date(data.currentPeriodEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                     </p>
@@ -193,9 +204,9 @@ function BillingInner() {
                     onClick={handleManage}
                     disabled={portalLoading}
                     className="text-sm px-4 py-2 rounded-lg transition-all"
-                    style={{ background: "#1a1a2e", color: "#94a3b8", border: "1px solid #1a1a2e" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "#e2e8f0"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#94a3b8"; }}
+                    style={{ background: "var(--surface-2)", color: "var(--foreground-2)", border: "1px solid var(--border)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(218,119,86,0.3)"; e.currentTarget.style.color = "var(--foreground)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--foreground-2)"; }}
                   >
                     {portalLoading ? "Opening..." : "Manage subscription"}
                   </button>
@@ -204,7 +215,7 @@ function BillingInner() {
 
               {/* Usage */}
               <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#334155" }}>This month&apos;s usage</p>
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--foreground-muted)" }}>This month&apos;s usage</p>
                 <UsageBar used={data.usage.runs} limit={data.limits.runs} label="Agent runs" />
                 <UsageBar used={data.usage.workflows} limit={data.limits.workflows} label="Saved workflows" />
               </div>
@@ -213,24 +224,24 @@ function BillingInner() {
             {/* Upgrade options (only shown if not on Business) */}
             {data.plan !== "business" && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "#334155" }}>Upgrade your plan</p>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--foreground-muted)" }}>Upgrade your plan</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {UPGRADE_OPTIONS.filter((o) => o.plan !== data.plan).map((opt) => (
                     <div
                       key={opt.plan}
                       className="rounded-xl p-5"
-                      style={{ background: "#0d0d12", border: "1px solid rgba(124,58,237,0.2)" }}
+                      style={{ background: "var(--surface)", border: "1px solid rgba(218,119,86,0.2)" }}
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <p className="font-semibold" style={{ color: "#e2e8f0" }}>{opt.name}</p>
-                          <p className="text-sm" style={{ color: "#a78bfa" }}>{opt.price}</p>
+                          <p className="font-semibold" style={{ color: "var(--foreground)" }}>{opt.name}</p>
+                          <p className="text-sm" style={{ color: "var(--accent)" }}>{opt.price}</p>
                         </div>
                       </div>
                       <ul className="space-y-1 mb-4">
                         {opt.features.map((f) => (
-                          <li key={f} className="text-xs flex items-center gap-2" style={{ color: "#64748b" }}>
-                            <span style={{ color: "#7c3aed" }}>✓</span> {f}
+                          <li key={f} className="text-xs flex items-center gap-2" style={{ color: "var(--foreground-3)" }}>
+                            <span style={{ color: "var(--accent)" }}>✓</span> {f}
                           </li>
                         ))}
                       </ul>
@@ -238,7 +249,7 @@ function BillingInner() {
                         onClick={() => handleUpgrade(opt)}
                         disabled={checkoutLoading === opt.plan}
                         className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
-                        style={{ background: "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "#fff", boxShadow: "0 0 16px rgba(124,58,237,0.25)" }}
+                        style={{ background: "var(--accent)", color: "#fff" }}
                       >
                         {checkoutLoading === opt.plan ? "Redirecting..." : `Upgrade to ${opt.name}`}
                       </button>
@@ -248,13 +259,13 @@ function BillingInner() {
               </div>
             )}
 
-            <p className="text-xs text-center" style={{ color: "#334155" }}>
+            <p className="text-xs text-center" style={{ color: "var(--foreground-muted)" }}>
               Payments are processed securely by Stripe.{" "}
-              <Link href="/pricing" style={{ color: "#7c3aed" }}>View full plan comparison →</Link>
+              <Link href="/pricing" style={{ color: "var(--accent)" }}>View full plan comparison →</Link>
             </p>
           </div>
         ) : (
-          <p className="text-sm" style={{ color: "#64748b" }}>Failed to load subscription data.</p>
+          <p className="text-sm" style={{ color: "var(--foreground-3)" }}>Failed to load subscription data.</p>
         )}
       </div>
     </div>
@@ -263,7 +274,7 @@ function BillingInner() {
 
 export default function BillingPage() {
   return (
-    <Suspense fallback={<div style={{ background: "#050508", height: "100vh" }} />}>
+    <Suspense fallback={<div style={{ background: "var(--background)", height: "100vh" }} />}>
       <BillingInner />
     </Suspense>
   );

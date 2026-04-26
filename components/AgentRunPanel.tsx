@@ -28,10 +28,10 @@ function ExportButtons({ workflow }: { workflow: WorkflowBlueprint }) {
   return (
     <div
       className="rounded-xl p-3 mt-2"
-      style={{ background: "rgba(124,58,237,0.05)", border: "1px solid rgba(124,58,237,0.2)" }}
+      style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.2)" }}
     >
-      <p className="text-[11px] font-semibold mb-2" style={{ color: "#a78bfa" }}>
-        ⬇ Export Workflow
+      <p className="text-[11px] font-semibold mb-2" style={{ color: "var(--accent)" }}>
+        Export Workflow
       </p>
       <div className="flex gap-2 flex-wrap">
         {[
@@ -45,9 +45,9 @@ function ExportButtons({ workflow }: { workflow: WorkflowBlueprint }) {
             key={label}
             onClick={fn}
             className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
-            style={{ background: "rgba(124,58,237,0.12)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.25)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.22)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.12)")}
+            style={{ background: "var(--accent-glow)", color: "var(--foreground-2)", border: "1px solid rgba(218,119,86,0.25)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-2)")}
           >
             {label}
           </button>
@@ -80,10 +80,10 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
     return (
       <div
         className="rounded-xl px-3 py-2 mt-2 flex items-center gap-2"
-        style={{ background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.2)" }}
+        style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.2)" }}
       >
-        <span className="text-[11px]" style={{ color: "#06b6d4" }}>⏰</span>
-        <span className="text-[11px] font-semibold" style={{ color: "#06b6d4" }}>
+        <span className="text-[11px]" style={{ color: "var(--accent)" }}>⏰</span>
+        <span className="text-[11px] font-semibold" style={{ color: "var(--accent)" }}>
           Scheduled — {freqLabel(freq, freq === "hourly" ? undefined : hour)}
         </span>
       </div>
@@ -95,9 +95,9 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
       <button
         onClick={() => setStep("freq")}
         className="mt-2 text-[11px] flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all"
-        style={{ background: "rgba(6,182,212,0.06)", color: "#475569", border: "1px solid rgba(6,182,212,0.15)" }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "#06b6d4"; e.currentTarget.style.borderColor = "rgba(6,182,212,0.3)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "rgba(6,182,212,0.15)"; }}
+        style={{ background: "var(--accent-glow)", color: "var(--foreground-3)", border: "1px solid rgba(218,119,86,0.15)" }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.borderColor = "rgba(218,119,86,0.3)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; e.currentTarget.style.borderColor = "rgba(218,119,86,0.15)"; }}
       >
         ⏰ Schedule this workflow
       </button>
@@ -108,9 +108,9 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
     return (
       <div
         className="rounded-xl p-3 mt-2"
-        style={{ background: "rgba(6,182,212,0.05)", border: "1px solid rgba(6,182,212,0.18)" }}
+        style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.18)" }}
       >
-        <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>Run automatically</p>
+        <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "var(--foreground-muted)" }}>Run automatically</p>
         <div className="flex gap-2 flex-wrap">
           {(["hourly", "daily", "weekly"] as ScheduleFrequency[]).map((f) => (
             <button
@@ -120,9 +120,9 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
                 if (f === "hourly") { save(f); } else { setStep("time"); }
               }}
               className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
-              style={{ background: "rgba(6,182,212,0.08)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.2)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.16)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.08)")}
+              style={{ background: "var(--surface)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-2)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--surface)")}
             >
               {freqLabel(f)}
             </button>
@@ -130,7 +130,7 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
           <button
             onClick={() => setStep("idle")}
             className="text-[11px] px-2 py-1.5 rounded-lg"
-            style={{ color: "#334155" }}
+            style={{ color: "var(--foreground-3)" }}
           >
             Cancel
           </button>
@@ -143,9 +143,9 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
   return (
     <div
       className="rounded-xl p-3 mt-2"
-      style={{ background: "rgba(6,182,212,0.05)", border: "1px solid rgba(6,182,212,0.18)" }}
+      style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.18)" }}
     >
-      <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>
+      <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "var(--foreground-muted)" }}>
         {freq === "daily" ? "Daily at" : "Weekly at"}
       </p>
       <div className="flex items-center gap-2 flex-wrap">
@@ -153,7 +153,7 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
           value={hour}
           onChange={(e) => setHour(Number(e.target.value))}
           className="text-[11px] px-2 py-1.5 rounded-lg"
-          style={{ background: "#0d0d12", color: "#e2e8f0", border: "1px solid #1a1a2e" }}
+          style={{ background: "var(--surface)", color: "var(--foreground)", border: "1px solid var(--border)" }}
         >
           {HOURS.map((h) => (
             <option key={h} value={h}>{hourLabel(h)}</option>
@@ -163,16 +163,14 @@ function ScheduleSection({ workflow }: { workflow: WorkflowBlueprint }) {
           onClick={() => save(freq, hour)}
           disabled={saving}
           className="text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-all"
-          style={{ background: "rgba(6,182,212,0.12)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.25)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.2)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.12)")}
+          style={{ background: "var(--accent)", color: "#fff", border: "none" }}
         >
           {saving ? "Saving…" : "Set schedule"}
         </button>
         <button
           onClick={() => setStep("freq")}
           className="text-[11px] px-2 py-1.5 rounded-lg"
-          style={{ color: "#334155" }}
+          style={{ color: "var(--foreground-3)" }}
         >
           Back
         </button>
@@ -203,9 +201,9 @@ function StatusBadge({ status }: { status: AgentRun["status"] }) {
     return (
       <span
         className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
-        style={{ background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}
+        style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.3)", color: "var(--accent)" }}
       >
-        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#7c3aed" }} />
+        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--accent)" }} />
         Running
       </span>
     );
@@ -254,17 +252,17 @@ function StageIndicator({ stage, description }: { stage: AgentStage; description
   return (
     <div
       className="rounded-xl p-3 mb-3"
-      style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.18)" }}
+      style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.18)" }}
     >
       <div className="flex items-center gap-2 mb-2">
         <span
           className="w-2 h-2 rounded-full animate-pulse flex-shrink-0"
-          style={{ background: "#7c3aed" }}
+          style={{ background: "var(--accent)" }}
         />
-        <span className="text-[11px] font-semibold" style={{ color: "#a78bfa" }}>
+        <span className="text-[11px] font-semibold" style={{ color: "var(--accent)" }}>
           {STAGE_LABELS[stage]}
         </span>
-        <span className="text-[10px] ml-1" style={{ color: "#475569" }}>
+        <span className="text-[10px] ml-1" style={{ color: "var(--foreground-3)" }}>
           {description}
         </span>
       </div>
@@ -275,10 +273,10 @@ function StageIndicator({ stage, description }: { stage: AgentStage; description
             className="flex-1 h-0.5 rounded-full transition-all duration-500"
             style={{
               background: i < idx
-                ? "#7c3aed"
+                ? "var(--accent)"
                 : i === idx
-                ? "rgba(124,58,237,0.6)"
-                : "rgba(124,58,237,0.12)",
+                ? "rgba(218,119,86,0.6)"
+                : "rgba(218,119,86,0.12)",
             }}
           />
         ))}
@@ -299,16 +297,16 @@ function ReflectionCard({ reflection }: { reflection: ReflectionResult }) {
       </p>
       {reflection.issues.slice(0, 3).map((issue, i) => (
         <div key={i} className="mb-1 last:mb-0">
-          <p className="text-[10px]" style={{ color: "#94a3b8" }}>
+          <p className="text-[10px]" style={{ color: "var(--foreground-2)" }}>
             <span style={{ color: "#fbbf24" }}>Issue:</span> {issue.issue}
           </p>
-          <p className="text-[10px]" style={{ color: "#94a3b8" }}>
+          <p className="text-[10px]" style={{ color: "var(--foreground-2)" }}>
             <span style={{ color: "#86efac" }}>Fix:</span> {issue.fix}
           </p>
         </div>
       ))}
       {reflection.shouldRetry && (
-        <p className="text-[10px] mt-1.5 font-medium" style={{ color: "#a78bfa" }}>
+        <p className="text-[10px] mt-1.5 font-medium" style={{ color: "var(--accent)" }}>
           Self-healing retry queued
         </p>
       )}
@@ -327,17 +325,17 @@ function ObservationCard({ obs }: { obs: ExecutionObservation }) {
         Execution metrics
       </p>
       <div className="flex gap-4 flex-wrap">
-        <span className="text-[10px]" style={{ color: "#94a3b8" }}>
+        <span className="text-[10px]" style={{ color: "var(--foreground-2)" }}>
           Success rate: <span style={{ color: pct === 100 ? "#22c55e" : "#eab308" }}>{pct}%</span>
         </span>
-        <span className="text-[10px]" style={{ color: "#94a3b8" }}>
+        <span className="text-[10px]" style={{ color: "var(--foreground-2)" }}>
           Tools called: {obs.toolCallCount}
         </span>
-        <span className="text-[10px]" style={{ color: "#94a3b8" }}>
+        <span className="text-[10px]" style={{ color: "var(--foreground-2)" }}>
           Time: {obs.executionTimeMs < 1000 ? `${obs.executionTimeMs}ms` : `${(obs.executionTimeMs / 1000).toFixed(1)}s`}
         </span>
         {obs.totalRetries > 0 && (
-          <span className="text-[10px]" style={{ color: "#94a3b8" }}>
+          <span className="text-[10px]" style={{ color: "var(--foreground-2)" }}>
             Retries: {obs.totalRetries}
           </span>
         )}
@@ -351,14 +349,16 @@ function EmptyState() {
     <div className="flex flex-col items-center justify-center h-full py-16 text-center">
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-        style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}
+        style={{ background: "var(--accent-glow)", border: "1px solid rgba(218,119,86,0.15)" }}
       >
-        <span className="text-xl">⚡</span>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 3v3M10 14v3M3 10h3M14 10h3M5.05 5.05l2.122 2.122M12.828 12.828l2.122 2.122M5.05 14.95l2.122-2.122M12.828 7.172l2.122-2.122" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
       </div>
-      <p className="text-sm font-medium mb-1" style={{ color: "#475569" }}>
+      <p className="text-sm font-medium mb-1" style={{ color: "var(--foreground-2)" }}>
         Agent ready
       </p>
-      <p className="text-xs max-w-[200px]" style={{ color: "#1e293b" }}>
+      <p className="text-xs max-w-[200px]" style={{ color: "var(--foreground-muted)" }}>
         Ask me to send emails, create Notion records, check Stripe, or build a workflow
       </p>
     </div>
@@ -401,19 +401,19 @@ export default function AgentRunPanel({
       {/* Run header */}
       <div
         className="flex-shrink-0 rounded-xl p-4 mb-4"
-        style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
         <div className="flex items-start justify-between gap-2 mb-1">
-          <p className="text-xs font-semibold" style={{ color: "#e2e8f0" }} title={run.userMessage}>
+          <p className="text-xs font-semibold" style={{ color: "var(--foreground)" }} title={run.userMessage}>
             {run.userMessage.length > 80 ? run.userMessage.slice(0, 80) + "…" : run.userMessage}
           </p>
           <StatusBadge status={run.status} />
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[10px]" style={{ color: "#334155" }}>
+          <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>
             {run.toolCalls.length} tool call{run.toolCalls.length !== 1 ? "s" : ""}
           </span>
-          <span className="text-[10px] font-mono" style={{ color: "#334155" }}>
+          <span className="text-[10px] font-mono" style={{ color: "var(--foreground-muted)" }}>
             {elapsed(run.startedAt, run.completedAt)}
           </span>
         </div>
@@ -430,9 +430,9 @@ export default function AgentRunPanel({
           <div className="flex items-center gap-2 py-3">
             <span
               className="w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-              style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }}
+              style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}
             />
-            <span className="text-xs" style={{ color: "#475569" }}>
+            <span className="text-xs" style={{ color: "var(--foreground-3)" }}>
               Thinking...
             </span>
           </div>
@@ -469,7 +469,7 @@ export default function AgentRunPanel({
             <p className="text-[11px] font-semibold mb-1" style={{ color: "#22c55e" }}>
               Agent response
             </p>
-            <p className="text-xs leading-relaxed" style={{ color: "#94a3b8" }}>
+            <p className="text-xs leading-relaxed" style={{ color: "var(--foreground-2)" }}>
               {run.finalMessage}
             </p>
           </div>

@@ -95,13 +95,13 @@ function TemplateCard({ blueprint, onLoad }: { blueprint: WorkflowBlueprint; onL
   };
 
   return (
-    <div className="rounded-xl mb-2 overflow-hidden" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
+    <div className="rounded-xl mb-2 overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
       <div className="flex items-start justify-between gap-3 p-3">
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold leading-snug mb-0.5" style={{ color: "#e2e8f0" }}>
+          <p className="text-xs font-semibold leading-snug mb-0.5" style={{ color: "var(--foreground)" }}>
             {blueprint.name}
           </p>
-          <p className="text-[10px] truncate mb-1" style={{ color: "#475569" }}>
+          <p className="text-[10px] truncate mb-1" style={{ color: "var(--foreground-3)" }}>
             ⚡ {blueprint.trigger}
           </p>
           <div className="flex gap-1 flex-wrap">
@@ -109,7 +109,7 @@ function TemplateCard({ blueprint, onLoad }: { blueprint: WorkflowBlueprint; onL
               <span
                 key={s.step}
                 className="text-[9px] px-1.5 py-0.5 rounded"
-                style={{ background: "rgba(6,182,212,0.06)", color: "#0e7490", border: "1px solid rgba(6,182,212,0.12)" }}
+                style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.12)" }}
               >
                 {s.tool}
               </span>
@@ -123,10 +123,10 @@ function TemplateCard({ blueprint, onLoad }: { blueprint: WorkflowBlueprint; onL
           style={
             loaded
               ? { background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
-              : { background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }
+              : { background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }
           }
-          onMouseEnter={(e) => { if (!loaded) e.currentTarget.style.background = "rgba(124,58,237,0.2)"; }}
-          onMouseLeave={(e) => { if (!loaded) e.currentTarget.style.background = "rgba(124,58,237,0.1)"; }}
+          onMouseEnter={(e) => { if (!loaded) e.currentTarget.style.background = "rgba(218,119,86,0.2)"; }}
+          onMouseLeave={(e) => { if (!loaded) e.currentTarget.style.background = "var(--accent-glow)"; }}
         >
           {loading ? "..." : loaded ? "✓ Added" : "Load"}
         </button>
@@ -253,7 +253,7 @@ function WorkflowCard({
   return (
     <div
       className="rounded-xl mb-3 overflow-hidden transition-all"
-      style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
     >
       {/* Card header */}
       <div
@@ -262,20 +262,20 @@ function WorkflowCard({
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-semibold truncate" style={{ color: "#e2e8f0" }}>
+            <span className="text-xs font-semibold truncate" style={{ color: "var(--foreground)" }}>
               {blueprint.name}
             </span>
             <span
               className="text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
-              style={{ background: "rgba(124,58,237,0.12)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
+              style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
             >
               {blueprint.steps.length} step{blueprint.steps.length !== 1 ? "s" : ""}
             </span>
           </div>
-          <p className="text-[11px] truncate mb-1" style={{ color: "#475569" }}>
+          <p className="text-[11px] truncate mb-1" style={{ color: "var(--foreground-3)" }}>
             ⚡ {blueprint.trigger}
           </p>
-          <span className="text-[10px]" style={{ color: "#1e293b" }}>
+          <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>
             {relativeTime(saved.savedAt)}
           </span>
         </div>
@@ -289,8 +289,8 @@ function WorkflowCard({
               className="text-[10px] px-2 py-0.5 rounded-full transition-all"
               style={
                 schedule.enabled
-                  ? { background: "rgba(6,182,212,0.1)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.2)" }
-                  : { background: "rgba(71,85,105,0.1)", color: "#475569", border: "1px solid #1a1a2e" }
+                  ? { background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }
+                  : { background: "rgba(71,85,105,0.1)", color: "var(--foreground-3)", border: "1px solid var(--border)" }
               }
             >
               {schedule.enabled ? "⏰" : "⏸"}
@@ -302,9 +302,9 @@ function WorkflowCard({
             disabled={webhookLoading}
             title="Get webhook URL"
             className="text-[10px] px-2 py-1 rounded-lg transition-all"
-            style={{ color: "#475569", border: "1px solid #1a1a2e" }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#a78bfa"; e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+            style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.borderColor = "rgba(218,119,86,0.3)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; e.currentTarget.style.borderColor = "var(--border)"; }}
           >
             {webhookLoading ? "..." : "⚡ Webhook"}
           </button>
@@ -321,20 +321,20 @@ function WorkflowCard({
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
             className="text-[10px] px-2 py-1 rounded-lg transition-all"
-            style={{ color: "#334155", border: "1px solid #1a1a2e" }}
+            style={{ color: "var(--foreground-muted)", border: "1px solid var(--border)" }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
           >
             ✕
           </button>
-          <span style={{ color: "#334155", fontSize: 10 }}>{expanded ? "▲" : "▼"}</span>
+          <span style={{ color: "var(--foreground-muted)", fontSize: 10 }}>{expanded ? "▲" : "▼"}</span>
         </div>
       </div>
 
       {/* Run context input */}
       {showRun && (
-        <div className="px-4 pb-3" style={{ borderTop: "1px solid #0f0f1a" }}>
-          <p className="text-[10px] uppercase tracking-widest mt-3 mb-2" style={{ color: "#334155" }}>
+        <div className="px-4 pb-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+          <p className="text-[10px] uppercase tracking-widest mt-3 mb-2" style={{ color: "var(--foreground-muted)" }}>
             Run context (optional)
           </p>
           <input
@@ -345,9 +345,9 @@ function WorkflowCard({
             placeholder="e.g. customer: John Smith, john@co.com"
             autoFocus
             className="w-full text-xs rounded-lg px-3 py-2 outline-none mb-2"
-            style={{ background: "#080810", border: "1px solid #1a1a2e", color: "#94a3b8", caretColor: "#7c3aed" }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+            style={{ background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground-2)", caretColor: "var(--accent)" }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.4)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
           />
           <div className="flex gap-2">
             <button
@@ -360,7 +360,7 @@ function WorkflowCard({
             <button
               onClick={() => setShowRun(false)}
               className="px-3 py-2 rounded-lg text-[11px] transition-all"
-              style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+              style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
             >
               Cancel
             </button>
@@ -370,22 +370,22 @@ function WorkflowCard({
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="px-4 pb-4" style={{ borderTop: "1px solid #0f0f1a" }}>
+        <div className="px-4 pb-4" style={{ borderTop: "1px solid var(--border-subtle)" }}>
           {/* Steps */}
           <div className="mt-3 space-y-2">
             {blueprint.steps.map((s) => (
               <div key={s.step} className="flex items-start gap-3">
                 <span
                   className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5"
-                  style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa" }}
+                  style={{ background: "var(--accent-glow)", color: "var(--accent)" }}
                 >
                   {s.step}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] leading-snug" style={{ color: "#94a3b8" }}>{s.action}</p>
+                  <p className="text-[11px] leading-snug" style={{ color: "var(--foreground-2)" }}>{s.action}</p>
                   <span
                     className="text-[10px] px-1.5 py-0.5 rounded mt-0.5 inline-block"
-                    style={{ background: "rgba(6,182,212,0.08)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.15)" }}
+                    style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.15)" }}
                   >
                     {s.tool}
                   </span>
@@ -395,14 +395,14 @@ function WorkflowCard({
           </div>
 
           {/* Outcome */}
-          <p className="text-[11px] mt-3 leading-relaxed" style={{ color: "#334155" }}>
+          <p className="text-[11px] mt-3 leading-relaxed" style={{ color: "var(--foreground-muted)" }}>
             {blueprint.expected_outcome}
           </p>
 
           {/* Webhook URL */}
           {showWebhook && webhookUrl && (
-            <div className="mt-3 pt-3" style={{ borderTop: "1px solid #0f0f1a" }}>
-              <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>
+            <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+              <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "var(--foreground-muted)" }}>
                 Webhook URL — POST to trigger this workflow
               </p>
               <div className="flex gap-2">
@@ -410,14 +410,14 @@ function WorkflowCard({
                   readOnly
                   value={webhookUrl}
                   className="flex-1 text-[10px] rounded-lg px-2 py-1.5 outline-none font-mono"
-                  style={{ background: "#080810", border: "1px solid #1a1a2e", color: "#475569" }}
+                  style={{ background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground-3)" }}
                 />
                 <button
                   onClick={copyWebhook}
                   className="text-[10px] px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-all"
                   style={webhookCopied
                     ? { background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
-                    : { background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }
+                    : { background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }
                   }
                 >
                   {webhookCopied ? "Copied!" : "Copy"}
@@ -427,20 +427,20 @@ function WorkflowCard({
           )}
 
           {/* Schedule section */}
-          <div className="mt-3 pt-3" style={{ borderTop: "1px solid #0f0f1a" }}>
+          <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
             {schedule ? (
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <span className="text-[10px] font-semibold" style={{ color: schedule.enabled ? "#06b6d4" : "#475569" }}>
+                  <span className="text-[10px] font-semibold" style={{ color: schedule.enabled ? "var(--accent)" : "var(--foreground-3)" }}>
                     {schedule.enabled ? `⏰ ${freqLabel(schedule.frequency, schedule.runHour)}` : `⏸ Paused (${freqLabel(schedule.frequency, schedule.runHour)})`}
                   </span>
                   {schedule.enabled && (
-                    <span className="text-[10px] ml-2" style={{ color: "#334155" }}>
+                    <span className="text-[10px] ml-2" style={{ color: "var(--foreground-muted)" }}>
                       next {nextRunLabel(schedule.nextRunAt)}
                     </span>
                   )}
                   {schedule.lastRunAt && (
-                    <span className="text-[10px] ml-2" style={{ color: "#1e293b" }}>
+                    <span className="text-[10px] ml-2" style={{ color: "var(--foreground-muted)" }}>
                       · last ran {Math.round((Date.now() - schedule.lastRunAt) / 60000)}m ago
                     </span>
                   )}
@@ -449,18 +449,18 @@ function WorkflowCard({
                   <button
                     onClick={handleToggleSchedule}
                     className="text-[10px] px-2 py-0.5 rounded-lg transition-all"
-                    style={{ color: "#475569", border: "1px solid #1a1a2e" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#94a3b8")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#475569")}
+                    style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--foreground-2)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-3)")}
                   >
                     {schedule.enabled ? "Pause" : "Resume"}
                   </button>
                   <button
                     onClick={handleDeleteSchedule}
                     className="text-[10px] px-2 py-0.5 rounded-lg transition-all"
-                    style={{ color: "#334155", border: "1px solid #1a1a2e" }}
+                    style={{ color: "var(--foreground-muted)", border: "1px solid var(--border)" }}
                     onMouseEnter={(e) => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
                   >
                     Remove
                   </button>
@@ -472,15 +472,15 @@ function WorkflowCard({
                   <button
                     onClick={() => { setShowSchedule(true); setSchedStep("freq"); }}
                     className="text-[10px] flex items-center gap-1.5 transition-all"
-                    style={{ color: "#334155" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#06b6d4")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#334155")}
+                    style={{ color: "var(--foreground-muted)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-muted)")}
                   >
                     <span>⏰</span> Schedule this workflow
                   </button>
                 ) : schedStep === "freq" ? (
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>
+                    <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "var(--foreground-muted)" }}>
                       Run automatically
                     </p>
                     <div className="flex gap-2 flex-wrap">
@@ -492,9 +492,9 @@ function WorkflowCard({
                             if (f === "hourly") { handleSchedule(f); } else { setSchedStep("time"); }
                           }}
                           className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
-                          style={{ background: "rgba(6,182,212,0.08)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.2)" }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.16)")}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.08)")}
+                          style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(218,119,86,0.16)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent-glow)")}
                         >
                           {freqLabel(f)}
                         </button>
@@ -502,7 +502,7 @@ function WorkflowCard({
                       <button
                         onClick={() => setShowSchedule(false)}
                         className="text-[11px] px-2 py-1.5 rounded-lg"
-                        style={{ color: "#334155" }}
+                        style={{ color: "var(--foreground-muted)" }}
                       >
                         Cancel
                       </button>
@@ -510,7 +510,7 @@ function WorkflowCard({
                   </div>
                 ) : (
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "#334155" }}>
+                    <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: "var(--foreground-muted)" }}>
                       {pendingFreq === "daily" ? "Daily at" : "Weekly at"}
                     </p>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -518,7 +518,7 @@ function WorkflowCard({
                         value={schedHour}
                         onChange={(e) => setSchedHour(Number(e.target.value))}
                         className="text-[11px] px-2 py-1.5 rounded-lg"
-                        style={{ background: "#0d0d12", color: "#e2e8f0", border: "1px solid #1a1a2e" }}
+                        style={{ background: "var(--surface)", color: "var(--foreground)", border: "1px solid var(--border)" }}
                       >
                         {Array.from({ length: 24 }, (_, h) => (
                           <option key={h} value={h}>{hourLabel(h)}</option>
@@ -527,16 +527,16 @@ function WorkflowCard({
                       <button
                         onClick={() => handleSchedule(pendingFreq, schedHour)}
                         className="text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-all"
-                        style={{ background: "rgba(6,182,212,0.08)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.2)" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.16)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(6,182,212,0.08)")}
+                        style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(218,119,86,0.16)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent-glow)")}
                       >
                         Set schedule
                       </button>
                       <button
                         onClick={() => setSchedStep("freq")}
                         className="text-[11px] px-2 py-1.5 rounded-lg"
-                        style={{ color: "#334155" }}
+                        style={{ color: "var(--foreground-muted)" }}
                       >
                         Back
                       </button>
@@ -548,7 +548,7 @@ function WorkflowCard({
           </div>
 
           {/* Export buttons */}
-          <div className="mt-3 pt-3 flex gap-2 flex-wrap" style={{ borderTop: "1px solid #0f0f1a" }}>
+          <div className="mt-3 pt-3 flex gap-2 flex-wrap" style={{ borderTop: "1px solid var(--border-subtle)" }}>
             {[
               { label: "Zapier", fn: () => downloadJson(`${safeName}-zapier.json`, toZapierJson(blueprint)) },
               { label: "n8n",    fn: () => downloadJson(`${safeName}-n8n.json`,    toN8nJson(blueprint)) },
@@ -559,9 +559,9 @@ function WorkflowCard({
                 key={label}
                 onClick={fn}
                 className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
-                style={{ background: "rgba(124,58,237,0.1)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.2)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.2)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.1)")}
+                style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(218,119,86,0.2)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent-glow)")}
               >
                 {label}
               </button>
@@ -607,19 +607,19 @@ export default function WorkflowLibraryPanel() {
       {/* Header */}
       <div className="flex-shrink-0 mb-4">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#334155" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--foreground-muted)" }}>
             Workflow Library
           </p>
           {workflows.length > 0 && (
             <span
               className="text-[10px] px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
+              style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
             >
               {workflows.length}
             </span>
           )}
         </div>
-        <p className="text-[11px]" style={{ color: "#1e293b" }}>
+        <p className="text-[11px]" style={{ color: "var(--foreground-muted)" }}>
           Workflows auto-saved when the agent builds them.
         </p>
       </div>
@@ -633,9 +633,9 @@ export default function WorkflowLibraryPanel() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search workflows..."
             className="w-full text-xs rounded-xl px-4 py-2.5 outline-none"
-            style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#94a3b8", caretColor: "#7c3aed" }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--foreground-2)", caretColor: "var(--accent)" }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.4)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
           />
         </div>
       )}
@@ -644,7 +644,7 @@ export default function WorkflowLibraryPanel() {
       <div className="flex-1 overflow-y-auto scrollbar-thin min-h-0">
         {workflows.length === 0 ? (
           <div>
-            <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
+            <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: "var(--foreground-muted)" }}>
               Starter Templates
             </p>
             {TEMPLATES.map((t) => (
@@ -652,7 +652,7 @@ export default function WorkflowLibraryPanel() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-xs text-center pt-8" style={{ color: "#334155" }}>
+          <p className="text-xs text-center pt-8" style={{ color: "var(--foreground-muted)" }}>
             No workflows match &ldquo;{search}&rdquo;
           </p>
         ) : (
@@ -660,13 +660,13 @@ export default function WorkflowLibraryPanel() {
             {filtered.map((w) => (
               <WorkflowCard key={w.id} saved={w} onDelete={() => handleDelete(w.id)} onScheduleChange={refreshSchedules} />
             ))}
-            <div className="mt-2 pt-3" style={{ borderTop: "1px solid #0f0f1a" }}>
+            <div className="mt-2 pt-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
               <button
                 onClick={() => setShowTemplates((v) => !v)}
                 className="text-[10px] uppercase tracking-widest flex items-center gap-1.5 mb-3 transition-all"
-                style={{ color: "#334155" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#a78bfa")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#334155")}
+                style={{ color: "var(--foreground-muted)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-muted)")}
               >
                 {showTemplates ? "▲" : "▼"} Templates
               </button>

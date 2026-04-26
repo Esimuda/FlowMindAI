@@ -67,10 +67,10 @@ function IntegrationGroup({
   return (
     <div
       className="rounded-xl p-4 mb-3"
-      style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold" style={{ color: "#e2e8f0" }}>
+        <span className="text-xs font-semibold" style={{ color: "var(--foreground)" }}>
           {groupName}
         </span>
         <span
@@ -78,7 +78,7 @@ function IntegrationGroup({
           style={
             isConnected
               ? { background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
-              : { background: "rgba(51,65,85,0.3)", color: "#475569", border: "1px solid #1a1a2e" }
+              : { background: "rgba(51,65,85,0.3)", color: "var(--foreground-3)", border: "1px solid var(--border)" }
           }
         >
           {isConnected ? "Connected" : "Not connected"}
@@ -88,7 +88,7 @@ function IntegrationGroup({
       <div className="space-y-2">
         {fields.map((f) => (
           <div key={f.key}>
-            <label className="block text-[10px] mb-1" style={{ color: "#475569" }}>
+            <label className="block text-[10px] mb-1" style={{ color: "var(--foreground-3)" }}>
               {f.label}
             </label>
             <input
@@ -98,13 +98,13 @@ function IntegrationGroup({
               placeholder={f.placeholder}
               className="w-full text-xs rounded-lg px-3 py-2 outline-none transition-all"
               style={{
-                background: "#080810",
-                border: "1px solid #1a1a2e",
-                color: "#94a3b8",
-                caretColor: "#7c3aed",
+                background: "var(--background)",
+                border: "1px solid var(--border)",
+                color: "var(--foreground-2)",
+                caretColor: "var(--accent)",
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.4)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
         ))}
@@ -186,11 +186,11 @@ export default function SettingsPanel({ businessProfile }: { businessProfile?: B
   const groups = Array.from(new Set(FIELDS.map((f) => f.group)));
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="h-full overflow-y-auto scrollbar-thin pb-6">
       {/* Business Profile Section */}
-      <div className="flex-shrink-0 mb-5 rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
+      <div className="mb-5 rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#334155" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--foreground-muted)" }}>
             Business Profile
           </p>
           {businessProfile && (
@@ -202,24 +202,24 @@ export default function SettingsPanel({ businessProfile }: { businessProfile?: B
 
         {businessProfile ? (
           <>
-            <p className="text-xs font-semibold mb-0.5" style={{ color: "#e2e8f0" }}>{businessProfile.companyName}</p>
-            <p className="text-[11px] mb-3 leading-relaxed" style={{ color: "#475569" }}>{businessProfile.description}</p>
+            <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--foreground)" }}>{businessProfile.companyName}</p>
+            <p className="text-[11px] mb-3 leading-relaxed" style={{ color: "var(--foreground-3)" }}>{businessProfile.description}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent("operant-start-onboarding"))}
                 className="flex-1 py-2 rounded-lg text-[11px] font-medium transition-all"
-                style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.18)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(124,58,237,0.1)")}
+                style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(218,119,86,0.18)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent-glow)")}
               >
                 Re-run Setup
               </button>
               <button
                 onClick={() => { clearProfile(); window.dispatchEvent(new CustomEvent("operant-profile-saved")); window.location.reload(); }}
                 className="px-3 py-2 rounded-lg text-[11px] transition-all"
-                style={{ color: "#334155", border: "1px solid #1a1a2e" }}
+                style={{ color: "var(--foreground-muted)", border: "1px solid var(--border)" }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
               >
                 Clear
               </button>
@@ -227,13 +227,13 @@ export default function SettingsPanel({ businessProfile }: { businessProfile?: B
           </>
         ) : (
           <>
-            <p className="text-[11px] mb-3" style={{ color: "#1e293b" }}>
+            <p className="text-[11px] mb-3" style={{ color: "var(--foreground-muted)" }}>
               No profile yet. Set one up so the agent knows your business.
             </p>
             <button
               onClick={() => window.dispatchEvent(new CustomEvent("operant-start-onboarding"))}
               className="w-full py-2.5 rounded-lg text-xs font-semibold transition-all"
-              style={{ background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", boxShadow: "0 0 16px rgba(124,58,237,0.25)" }}
+              style={{ background: "var(--accent)", color: "#fff", boxShadow: "0 0 16px rgba(218,119,86,0.25)" }}
             >
               ✦ Start Business Setup
             </button>
@@ -242,45 +242,45 @@ export default function SettingsPanel({ businessProfile }: { businessProfile?: B
       </div>
 
       {/* OAuth quick-connect */}
-      <div className="flex-shrink-0 mb-4 rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
-        <p className="text-xs font-semibold mb-3" style={{ color: "#e2e8f0" }}>Quick Connect</p>
+      <div className="mb-4 rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <p className="text-xs font-semibold mb-3" style={{ color: "var(--foreground)" }}>Quick Connect</p>
         <div className="flex flex-col gap-2">
           <a
             href="/api/oauth/google"
             className="flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all"
-            style={{ background: "rgba(255,255,255,0.04)", color: "#94a3b8", border: "1px solid #1a1a2e" }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "#e2e8f0"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#94a3b8"; }}
+            style={{ background: "rgba(255,255,255,0.04)", color: "var(--foreground-2)", border: "1px solid var(--border)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(218,119,86,0.3)"; e.currentTarget.style.color = "var(--foreground)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--foreground-2)"; }}
           >
             <span>G</span> Connect Google (Gmail · Sheets · Calendar)
           </a>
           <a
             href="/api/oauth/slack"
             className="flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all"
-            style={{ background: "rgba(255,255,255,0.04)", color: "#94a3b8", border: "1px solid #1a1a2e" }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "#e2e8f0"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#94a3b8"; }}
+            style={{ background: "rgba(255,255,255,0.04)", color: "var(--foreground-2)", border: "1px solid var(--border)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(218,119,86,0.3)"; e.currentTarget.style.color = "var(--foreground)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--foreground-2)"; }}
           >
             <span>#</span> Connect Slack
           </a>
         </div>
       </div>
 
-      <div className="flex-shrink-0 mb-4">
+      <div className="mb-4">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#334155" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--foreground-muted)" }}>
             Manual API Keys
           </p>
           {loading && (
-            <span className="text-[10px]" style={{ color: "#334155" }}>Loading...</span>
+            <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>Loading...</span>
           )}
         </div>
-        <p className="text-[11px]" style={{ color: "#1e293b" }}>
+        <p className="text-[11px]" style={{ color: "var(--foreground-muted)" }}>
           Keys are stored in your account and fetched server-side — never sent from your browser.
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-thin min-h-0">
+      <div>
         {groups.map((group) => (
           <IntegrationGroup
             key={group}
@@ -292,14 +292,14 @@ export default function SettingsPanel({ businessProfile }: { businessProfile?: B
         ))}
       </div>
 
-      <div className="flex-shrink-0 pt-4" style={{ borderTop: "1px solid #1a1a2e" }}>
+      <div className="pt-4" style={{ borderTop: "1px solid var(--border)" }}>
         <button
           onClick={handleSave}
           className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200"
           style={
             saved
               ? { background: "rgba(34,197,94,0.12)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }
-              : { background: "linear-gradient(135deg, #7c3aed, #5b21b6)", color: "#fff", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }
+              : { background: "var(--accent)", color: "#fff", boxShadow: "0 0 20px rgba(218,119,86,0.3)" }
           }
         >
           {saving ? "Saving..." : saved ? "✓ Saved" : "Save API Keys"}

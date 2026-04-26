@@ -33,10 +33,10 @@ function nextRunLabel(iso: string): string {
 
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
-    <div className="rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
-      <p className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: "#334155" }}>{label}</p>
-      <p className="text-2xl font-bold mb-0.5" style={{ color: color ?? "#e2e8f0" }}>{value}</p>
-      {sub && <p className="text-[10px]" style={{ color: "#334155" }}>{sub}</p>}
+    <div className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+      <p className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--foreground-muted)" }}>{label}</p>
+      <p className="text-2xl font-bold mb-0.5" style={{ color: color ?? "var(--foreground)" }}>{value}</p>
+      {sub && <p className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>{sub}</p>}
     </div>
   );
 }
@@ -51,8 +51,8 @@ function ActivityBar({ values }: { values: number[] }) {
   });
 
   return (
-    <div className="rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
-      <p className="text-[10px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#334155" }}>
+    <div className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+      <p className="text-[10px] font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--foreground-muted)" }}>
         Activity — last 7 days
       </p>
       <div className="flex items-end gap-1.5 h-16">
@@ -62,10 +62,10 @@ function ActivityBar({ values }: { values: number[] }) {
               className="w-full rounded-sm transition-all"
               style={{
                 height: `${Math.max((v / max) * 56, v > 0 ? 4 : 2)}px`,
-                background: v > 0 ? "rgba(124,58,237,0.7)" : "rgba(124,58,237,0.1)",
+                background: v > 0 ? "var(--accent)" : "var(--accent-glow)",
               }}
             />
-            <span className="text-[9px]" style={{ color: "#1e293b" }}>{labels[i]}</span>
+            <span className="text-[9px]" style={{ color: "var(--foreground-muted)" }}>{labels[i]}</span>
           </div>
         ))}
       </div>
@@ -94,8 +94,8 @@ export default function DashboardPanel() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }} />
-          <span className="text-xs" style={{ color: "#475569" }}>Loading dashboard...</span>
+          <span className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+          <span className="text-xs" style={{ color: "var(--foreground-3)" }}>Loading dashboard...</span>
         </div>
       </div>
     );
@@ -112,7 +112,7 @@ export default function DashboardPanel() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0">
         <StatCard label="Total runs" value={stats.totalRuns} />
         <StatCard label="Success rate" value={`${stats.successRate}%`} color={successColor} sub={`${stats.successfulRuns} succeeded`} />
-        <StatCard label="Failures" value={stats.failedRuns} color={stats.failedRuns > 0 ? "#ef4444" : "#e2e8f0"} />
+        <StatCard label="Failures" value={stats.failedRuns} color={stats.failedRuns > 0 ? "#ef4444" : "var(--foreground)"} />
         <StatCard label="Workflows" value={stats.totalWorkflows} sub="saved" />
       </div>
 
@@ -122,19 +122,19 @@ export default function DashboardPanel() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-shrink-0">
 
         {/* Recent executions */}
-        <div className="rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--foreground-muted)" }}>
             Recent executions
           </p>
           {stats.recentExecutions.length === 0 ? (
-            <p className="text-xs" style={{ color: "#1e293b" }}>No executions yet.</p>
+            <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>No executions yet.</p>
           ) : (
             <div className="space-y-2">
               {stats.recentExecutions.map((e) => (
                 <div key={e.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <StatusDot status={e.status} />
-                    <span className="text-xs truncate" style={{ color: "#94a3b8" }}>{e.workflowName}</span>
+                    <span className="text-xs truncate" style={{ color: "var(--foreground-2)" }}>{e.workflowName}</span>
                     {e.retryCount > 0 && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(234,179,8,0.1)", color: "#eab308" }}>
                         {e.retryCount}x retry
@@ -142,8 +142,8 @@ export default function DashboardPanel() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-[10px]" style={{ color: "#334155" }}>{elapsed(e.executionTimeMs)}</span>
-                    <span className="text-[10px]" style={{ color: "#1e293b" }}>{timeAgo(e.startedAt)}</span>
+                    <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>{elapsed(e.executionTimeMs)}</span>
+                    <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>{timeAgo(e.startedAt)}</span>
                   </div>
                 </div>
               ))}
@@ -152,20 +152,20 @@ export default function DashboardPanel() {
         </div>
 
         {/* Learned failure patterns */}
-        <div className="rounded-xl p-4" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--foreground-muted)" }}>
             Learned failure patterns
           </p>
           {stats.failurePatterns.length === 0 ? (
-            <p className="text-xs" style={{ color: "#1e293b" }}>No patterns learned yet. Patterns are stored after self-healing runs.</p>
+            <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>No patterns learned yet. Patterns are stored after self-healing runs.</p>
           ) : (
             <div className="space-y-3">
               {stats.failurePatterns.map((p, i) => (
-                <div key={i} className="rounded-lg p-3" style={{ background: "rgba(124,58,237,0.04)", border: "1px solid rgba(124,58,237,0.1)" }}>
+                <div key={i} className="rounded-lg p-3" style={{ background: "var(--surface-2)", border: "1px solid var(--border-subtle)" }}>
                   <p className="text-[10px] font-medium mb-0.5" style={{ color: "#f87171" }}>{p.failure}</p>
                   <p className="text-[10px]" style={{ color: "#86efac" }}>Fix: {p.solution}</p>
                   {p.learnedAt > 0 && (
-                    <p className="text-[9px] mt-1" style={{ color: "#1e293b" }}>Learned {timeAgo(new Date(p.learnedAt).toISOString())}</p>
+                    <p className="text-[9px] mt-1" style={{ color: "var(--foreground-muted)" }}>Learned {timeAgo(new Date(p.learnedAt).toISOString())}</p>
                   )}
                 </div>
               ))}
@@ -176,19 +176,19 @@ export default function DashboardPanel() {
 
       {/* Scheduled workflows */}
       {stats.scheduledWorkflows.length > 0 && (
-        <div className="rounded-xl p-4 flex-shrink-0" style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#334155" }}>
+        <div className="rounded-xl p-4 flex-shrink-0" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--foreground-muted)" }}>
             Scheduled automations
           </p>
           <div className="space-y-2">
             {stats.scheduledWorkflows.map((s, i) => (
               <div key={i} className="flex items-center justify-between">
-                <span className="text-xs" style={{ color: "#94a3b8" }}>{s.workflowName}</span>
+                <span className="text-xs" style={{ color: "var(--foreground-2)" }}>{s.workflowName}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: "var(--accent-glow)", color: "var(--accent)", border: "1px solid rgba(218,119,86,0.2)" }}>
                     {s.frequency}
                   </span>
-                  <span className="text-[10px]" style={{ color: "#475569" }}>{nextRunLabel(s.nextRun)}</span>
+                  <span className="text-[10px]" style={{ color: "var(--foreground-3)" }}>{nextRunLabel(s.nextRun)}</span>
                 </div>
               </div>
             ))}

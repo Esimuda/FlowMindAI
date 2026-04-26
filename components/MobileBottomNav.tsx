@@ -67,8 +67,8 @@ export default function MobileBottomNav({ activeTab, onTabChange, hasActiveRun }
     <nav
       className="md:hidden flex-shrink-0 flex items-center justify-around px-2 py-1 safe-area-pb"
       style={{
-        background: "#050508",
-        borderTop: "1px solid #1a1a2e",
+        background: "var(--background)",
+        borderTop: "1px solid var(--border)",
         height: "60px",
       }}
     >
@@ -79,7 +79,7 @@ export default function MobileBottomNav({ activeTab, onTabChange, hasActiveRun }
             key={id}
             onClick={() => onTabChange(id)}
             className="relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-all duration-200"
-            style={{ color: isActive ? "#a78bfa" : "#334155" }}
+            style={{ color: isActive ? "var(--accent)" : "var(--foreground-muted)" }}
           >
             {icon}
             <span className="text-[9px] font-medium tracking-wide">{label}</span>
@@ -94,7 +94,7 @@ export default function MobileBottomNav({ activeTab, onTabChange, hasActiveRun }
             {isActive && (
               <span
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full"
-                style={{ background: "linear-gradient(90deg, #7c3aed, #06b6d4)" }}
+                style={{ background: "var(--accent)" }}
               />
             )}
           </button>

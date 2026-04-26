@@ -3,16 +3,6 @@
 import { useState } from "react";
 import { ToolCallRecord } from "@/lib/types";
 
-const TOOL_ICONS: Record<string, string> = {
-  notion_create_page: "📄",
-  notion_query_database: "🔍",
-  send_email: "✉️",
-  slack_send_message: "💬",
-  stripe_list_customers: "👥",
-  stripe_list_charges: "💳",
-  build_workflow: "⚡",
-};
-
 const TOOL_LABELS: Record<string, string> = {
   notion_create_page: "Notion · Create page",
   notion_query_database: "Notion · Query database",
@@ -32,45 +22,42 @@ export default function ToolCallCard({ tc }: { tc: ToolCallRecord }) {
   const [expanded, setExpanded] = useState(false);
 
   const borderColor =
-    tc.status === "calling" ? "#7c3aed" : tc.status === "success" ? "#22c55e" : "#ef4444";
+    tc.status === "calling" ? "var(--accent)" : tc.status === "success" ? "#22c55e" : "#ef4444";
 
   const statusText =
     tc.status === "calling" ? "Running..." : tc.status === "success" ? "Done" : "Failed";
 
   const statusColor =
-    tc.status === "calling" ? "#a78bfa" : tc.status === "success" ? "#22c55e" : "#ef4444";
+    tc.status === "calling" ? "var(--accent)" : tc.status === "success" ? "#22c55e" : "#ef4444";
 
-  const icon = TOOL_ICONS[tc.toolName] ?? "🔧";
   const label = TOOL_LABELS[tc.toolName] ?? tc.toolName;
   const durationMs = tc.completedAt ? tc.completedAt - tc.startedAt : undefined;
-
   const inputEntries = Object.entries(tc.input).filter(([, v]) => v !== undefined && v !== "");
 
   return (
     <div
       className="rounded-xl p-3 mb-2"
       style={{
-        background: "#0d0d12",
-        border: `1px solid #1a1a2e`,
+        background: "var(--surface)",
+        border: `1px solid var(--border)`,
         borderLeft: `3px solid ${borderColor}`,
       }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm flex-shrink-0">{icon}</span>
-          <span className="text-[12px] font-semibold truncate" style={{ color: "#c4b5fd" }}>
+          <span className="text-[12px] font-semibold truncate" style={{ color: "var(--accent)" }}>
             {label}
           </span>
           {tc.status === "calling" && (
             <span
               className="w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-              style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }}
+              style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}
             />
           )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {durationMs !== undefined && (
-            <span className="text-[10px] font-mono" style={{ color: "#334155" }}>
+            <span className="text-[10px] font-mono" style={{ color: "var(--foreground-muted)" }}>
               {elapsed(durationMs)}
             </span>
           )}
@@ -80,14 +67,13 @@ export default function ToolCallCard({ tc }: { tc: ToolCallRecord }) {
         </div>
       </div>
 
-      {/* Input preview */}
       {inputEntries.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
           {inputEntries.slice(0, 3).map(([k, v]) => (
             <span
               key={k}
               className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-              style={{ background: "#080810", color: "#475569" }}
+              style={{ background: "var(--surface-2)", color: "var(--foreground-3)" }}
             >
               {k}: {typeof v === "string" ? v.slice(0, 30) + (v.length > 30 ? "…" : "") : JSON.stringify(v).slice(0, 30)}
             </span>
@@ -95,12 +81,11 @@ export default function ToolCallCard({ tc }: { tc: ToolCallRecord }) {
         </div>
       )}
 
-      {/* Output / error */}
       {(tc.output || tc.error) && (
         <div className="mt-2">
           <button
             className="text-[10px] flex items-center gap-1"
-            style={{ color: "#475569" }}
+            style={{ color: "var(--foreground-3)" }}
             onClick={() => setExpanded((e) => !e)}
           >
             <span>{expanded ? "▾" : "▸"}</span>
@@ -110,9 +95,9 @@ export default function ToolCallCard({ tc }: { tc: ToolCallRecord }) {
             <pre
               className="mt-1.5 text-[10px] font-mono whitespace-pre-wrap rounded p-2 overflow-auto max-h-32"
               style={{
-                background: "#080810",
-                color: tc.error ? "#ef4444" : "#94a3b8",
-                border: "1px solid #1a1a2e",
+                background: "var(--surface-2)",
+                color: tc.error ? "#ef4444" : "var(--foreground-2)",
+                border: "1px solid var(--border)",
               }}
             >
               {tc.output ?? tc.error}

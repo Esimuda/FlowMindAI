@@ -120,8 +120,8 @@ export default function MonitoringPanel() {
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-8">
-        <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }} />
-        <span className="text-sm" style={{ color: "#475569" }}>Loading monitors...</span>
+        <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+        <span className="text-sm" style={{ color: "var(--foreground-3)" }}>Loading monitors...</span>
       </div>
     );
   }
@@ -130,8 +130,8 @@ export default function MonitoringPanel() {
     <div className="h-full overflow-y-auto scrollbar-thin pr-1">
       {/* Header */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-1" style={{ color: "#e2e8f0" }}>Workflow Monitoring</h2>
-        <p className="text-xs" style={{ color: "#475569" }}>
+        <h2 className="text-sm font-bold mb-1" style={{ color: "var(--foreground)" }}>Workflow Monitoring</h2>
+        <p className="text-xs" style={{ color: "var(--foreground-3)" }}>
           Track scheduled workflows and configure alerts for failures or completions.
         </p>
       </div>
@@ -139,10 +139,10 @@ export default function MonitoringPanel() {
       {schedules.length === 0 ? (
         <div
           className="rounded-xl p-6 text-center"
-          style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
-          <p className="text-sm mb-1" style={{ color: "#334155" }}>No scheduled workflows</p>
-          <p className="text-xs" style={{ color: "#1e293b" }}>
+          <p className="text-sm mb-1" style={{ color: "var(--foreground-muted)" }}>No scheduled workflows</p>
+          <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>
             Build a workflow and click &ldquo;Schedule this workflow&rdquo; to start monitoring.
           </p>
         </div>
@@ -156,15 +156,15 @@ export default function MonitoringPanel() {
               <div
                 key={schedule.id}
                 className="rounded-xl p-4"
-                style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+                style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
               >
                 {/* Schedule header */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold truncate" style={{ color: "#e2e8f0" }}>
+                    <p className="text-xs font-semibold truncate" style={{ color: "var(--foreground)" }}>
                       {schedule.blueprint.name}
                     </p>
-                    <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>
+                    <p className="text-[10px] mt-0.5" style={{ color: "var(--foreground-3)" }}>
                       {freqLabel(schedule.frequency, schedule.runHour)} · Next: {nextRunLabel(schedule.nextRunAt)}
                     </p>
                   </div>
@@ -174,9 +174,9 @@ export default function MonitoringPanel() {
                       onClick={() => handleToggle(schedule.id)}
                       className="text-[10px] px-2 py-1 rounded-lg transition-all"
                       style={{
-                        background: schedule.enabled ? "rgba(34,197,94,0.08)" : "rgba(100,116,139,0.08)",
-                        color: schedule.enabled ? "#22c55e" : "#64748b",
-                        border: `1px solid ${schedule.enabled ? "rgba(34,197,94,0.2)" : "rgba(100,116,139,0.2)"}`,
+                        background: schedule.enabled ? "rgba(34,197,94,0.08)" : "var(--surface-2)",
+                        color: schedule.enabled ? "#22c55e" : "var(--foreground-3)",
+                        border: `1px solid ${schedule.enabled ? "rgba(34,197,94,0.2)" : "var(--border)"}`,
                       }}
                     >
                       {schedule.enabled ? "Active" : "Paused"}
@@ -184,9 +184,9 @@ export default function MonitoringPanel() {
                     <button
                       onClick={() => handleDelete(schedule.id)}
                       className="text-[10px] px-2 py-1 rounded-lg"
-                      style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+                      style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
                       onMouseEnter={(e) => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; e.currentTarget.style.borderColor = "var(--border)"; }}
                     >
                       Delete
                     </button>
@@ -196,12 +196,12 @@ export default function MonitoringPanel() {
                 {/* Status pill */}
                 <div className="flex items-center gap-3 mb-3">
                   {schedule.lastRunAt ? (
-                    <span className="text-[10px]" style={{ color: "#334155" }}>
+                    <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>
                       Last ran: {new Date(schedule.lastRunAt).toLocaleDateString()} at{" "}
                       {new Date(schedule.lastRunAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   ) : (
-                    <span className="text-[10px]" style={{ color: "#1e293b" }}>Never run</span>
+                    <span className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>Never run</span>
                   )}
                 </div>
 
@@ -212,17 +212,17 @@ export default function MonitoringPanel() {
                       <div
                         key={alert.id}
                         className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
-                        style={{ background: "#050508", border: "1px solid #0f0f18" }}
+                        style={{ background: "var(--surface-2)", border: "1px solid var(--border-subtle)" }}
                       >
                         <span className="text-[11px]">{CHANNEL_ICONS[alert.channel]}</span>
-                        <span className="text-[10px] flex-1 truncate" style={{ color: "#64748b" }}>
+                        <span className="text-[10px] flex-1 truncate" style={{ color: "var(--foreground-3)" }}>
                           {EVENT_LABELS[alert.event]} → {alert.destination}
                         </span>
                         <button
                           onClick={() => handleToggleAlert(alert.id, alert.enabled)}
                           className="text-[10px] px-1.5 py-0.5 rounded"
                           style={{
-                            color: alert.enabled ? "#22c55e" : "#475569",
+                            color: alert.enabled ? "#22c55e" : "var(--foreground-3)",
                             background: alert.enabled ? "rgba(34,197,94,0.06)" : "transparent",
                           }}
                         >
@@ -231,9 +231,9 @@ export default function MonitoringPanel() {
                         <button
                           onClick={() => handleDeleteAlert(alert.id)}
                           className="text-[10px] px-1.5 py-0.5 rounded"
-                          style={{ color: "#334155" }}
+                          style={{ color: "var(--foreground-muted)" }}
                           onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = "#334155")}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-muted)")}
                         >
                           ×
                         </button>
@@ -247,9 +247,9 @@ export default function MonitoringPanel() {
                   <button
                     onClick={() => setAddingFor({ id: schedule.workflowId, name: schedule.blueprint.name })}
                     className="text-[10px] flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all"
-                    style={{ color: "#334155", border: "1px dashed #1a1a2e" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = "#7c3aed"; e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "#334155"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+                    style={{ color: "var(--foreground-muted)", border: "1px dashed var(--border)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.borderColor = "rgba(218,119,86,0.4)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
                   >
                     + Add alert
                   </button>
@@ -257,9 +257,9 @@ export default function MonitoringPanel() {
                   <form
                     onSubmit={handleAddAlert}
                     className="mt-1 pt-3 space-y-2"
-                    style={{ borderTop: "1px solid #1a1a2e" }}
+                    style={{ borderTop: "1px solid var(--border)" }}
                   >
-                    <p className="text-[10px] uppercase tracking-widest" style={{ color: "#334155" }}>
+                    <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--foreground-muted)" }}>
                       New alert
                     </p>
                     <div className="flex gap-2">
@@ -267,7 +267,7 @@ export default function MonitoringPanel() {
                         value={newChannel}
                         onChange={(e) => setNewChannel(e.target.value as AlertChannel)}
                         className="text-[11px] px-2 py-1.5 rounded-lg"
-                        style={{ background: "#050508", border: "1px solid #1a1a2e", color: "#94a3b8" }}
+                        style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--foreground-2)" }}
                       >
                         <option value="email">Email</option>
                         <option value="slack">Slack</option>
@@ -276,7 +276,7 @@ export default function MonitoringPanel() {
                         value={newEvent}
                         onChange={(e) => setNewEvent(e.target.value as AlertEvent)}
                         className="text-[11px] px-2 py-1.5 rounded-lg"
-                        style={{ background: "#050508", border: "1px solid #1a1a2e", color: "#94a3b8" }}
+                        style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--foreground-2)" }}
                       >
                         <option value="failure">On failure</option>
                         <option value="success">On success</option>
@@ -289,16 +289,16 @@ export default function MonitoringPanel() {
                       onChange={(e) => setNewDest(e.target.value)}
                       placeholder={newChannel === "email" ? "your@email.com" : "https://hooks.slack.com/..."}
                       className="w-full text-[11px] px-2.5 py-1.5 rounded-lg outline-none"
-                      style={{ background: "#050508", border: "1px solid #1a1a2e", color: "#e2e8f0" }}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")}
-                      onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+                      style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--foreground)" }}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.45)")}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
                     />
                     <div className="flex gap-2">
                       <button
                         type="submit"
                         disabled={saving || !newDest.trim()}
                         className="text-[11px] px-3 py-1.5 rounded-lg font-semibold"
-                        style={{ background: "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "#fff" }}
+                        style={{ background: "var(--accent)", color: "#fff" }}
                       >
                         {saving ? "Saving..." : "Save alert"}
                       </button>
@@ -306,7 +306,7 @@ export default function MonitoringPanel() {
                         type="button"
                         onClick={() => { setAddingFor(null); setNewDest(""); }}
                         className="text-[11px] px-2 py-1.5 rounded-lg"
-                        style={{ color: "#475569" }}
+                        style={{ color: "var(--foreground-3)" }}
                       >
                         Cancel
                       </button>

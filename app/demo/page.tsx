@@ -5,15 +5,15 @@ import Link from "next/link";
 
 /* ── Slide definitions ── */
 const SLIDES = [
-  { id: "hook",         duration: 18, label: "Hook" },
-  { id: "problem",      duration: 18, label: "Problem" },
-  { id: "pipeline",     duration: 52, label: "Live Demo" },
-  { id: "memory",       duration: 15, label: "Memory" },
-  { id: "export",       duration: 15, label: "Export" },
-  { id: "integrations", duration: 12, label: "Integrations" },
-  { id: "close",        duration: 20, label: "Close" },
+  { id: "hook",         duration: 13, label: "Hook" },
+  { id: "problem",      duration: 14, label: "Problem" },
+  { id: "pipeline",     duration: 42, label: "Live Demo" },
+  { id: "memory",       duration: 12, label: "Memory" },
+  { id: "export",       duration: 11, label: "Export" },
+  { id: "integrations", duration: 10, label: "Integrations" },
+  { id: "close",        duration: 18, label: "Close" },
 ];
-// Total: 150s = 2 min 30 sec
+// Total: 120s = 2 min exactly
 
 const INTEGRATIONS = [
   "Notion","Slack","Stripe","Gmail","HubSpot",
@@ -273,13 +273,13 @@ function SlideClose() {
 
 /* ── Script cues per slide ── */
 const SCRIPT_CUES = [
-  "What if you could automate any business process just by describing it? No setup. No specialist. That's Operant AI — the agent that runs your entire operations layer, automatically.",
-  "Right now, automation means hours in Zapier or n8n — configuring every step by hand. Most businesses don't bother. Operant AI replaces all of that with one sentence. And it doesn't just suggest — it executes.",
-  "Here it is live. New Stripe customer → Notion CRM → welcome email. Watch the 8-stage pipeline fire in real time. Three tools. Two seconds. Done — and saved to memory for next time.",
-  "Every run feeds a three-tier memory system. Short-term for this run, long-term across all runs, and a pattern layer that learns from every failure — so the agent never repeats a mistake.",
-  "Zero lock-in. Export any workflow as n8n JSON, a Make dot com scenario, or a Zapier guide — straight into whatever your team already uses.",
-  "Fifteen integrations live today. Stripe, Notion, Gmail, Slack, HubSpot, GitHub, and more. Connect once — the agent picks the right tools automatically.",
-  "Operant AI is Claude Code, but for automation. You describe the outcome. The agent plans it, runs it, learns from it, and exports it. No specialist required. This is Operant AI.",
+  "What if you could automate any business process just by describing it? No setup. No specialist. That's Operant AI.",
+  "Zapier and n8n take hours and require an expert. Operant AI replaces all of that with one sentence — and actually executes it.",
+  "Live — new Stripe customer, add to Notion, send a welcome email. Eight stages, three tools, two seconds. Done — and saved to memory.",
+  "Three memory tiers — short-term, long-term, and a pattern layer that learns from every failure automatically.",
+  "No lock-in. Export any workflow as n8n, Make dot com, or Zapier — straight into tools your team already uses.",
+  "Fifteen integrations live — Stripe, Notion, Gmail, Slack, HubSpot, GitHub, and more. The agent picks the right tools automatically.",
+  "You describe the outcome. Operant AI plans it, runs it, learns from it, and exports it. No specialist required. This is Operant AI.",
 ];
 
 /* ── Main component ── */

@@ -60,27 +60,27 @@ function MemoryCard({
   return (
     <div
       className="rounded-xl p-4 transition-all"
-      style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p
             className="text-[11px] font-mono mb-1.5 truncate"
-            style={{ color: "#475569" }}
+            style={{ color: "var(--foreground-3)" }}
             title={entry.key}
           >
             {entry.key}
           </p>
-          <p className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "#94a3b8" }}>
+          <p className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "var(--foreground-2)" }}>
             {expanded ? formatted : preview}
           </p>
           {hasMore && (
             <button
               onClick={() => setExpanded((e) => !e)}
               className="text-[10px] mt-1.5 transition-colors"
-              style={{ color: "#475569" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#7c3aed"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; }}
+              style={{ color: "var(--foreground-3)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; }}
             >
               {expanded ? "Show less" : `+${lines.length - 1} more lines`}
             </button>
@@ -89,8 +89,8 @@ function MemoryCard({
 
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="text-right">
-            <p className="text-[10px]" style={{ color: "#334155" }}>{timeAgo(entry.updatedAt)}</p>
-            <p className="text-[10px]" style={{ color: "#334155" }}>
+            <p className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>{timeAgo(entry.updatedAt)}</p>
+            <p className="text-[10px]" style={{ color: "var(--foreground-muted)" }}>
               {Math.round(entry.relevance * 100)}% rel
             </p>
           </div>
@@ -98,14 +98,14 @@ function MemoryCard({
             onClick={onDelete}
             disabled={deleting}
             className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
-            style={{ color: "#334155", border: "1px solid transparent" }}
+            style={{ color: "var(--foreground-muted)", border: "1px solid transparent" }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = "#f87171";
               e.currentTarget.style.borderColor = "rgba(248,113,113,0.2)";
               e.currentTarget.style.background = "rgba(248,113,113,0.05)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#334155";
+              e.currentTarget.style.color = "var(--foreground-muted)";
               e.currentTarget.style.borderColor = "transparent";
               e.currentTarget.style.background = "transparent";
             }}
@@ -132,14 +132,14 @@ function EmptyState({ tab }: { tab: Tab }) {
     <div className="flex flex-col items-center justify-center h-48 gap-3">
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center"
-        style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="9" cy="9" r="7" stroke="#334155" strokeWidth="1.5" />
-          <path d="M6 9h6M9 6v6" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="9" cy="9" r="7" stroke="var(--foreground-muted)" strokeWidth="1.5" />
+          <path d="M6 9h6M9 6v6" stroke="var(--foreground-muted)" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </div>
-      <p className="text-xs text-center" style={{ color: "#334155" }}>
+      <p className="text-xs text-center" style={{ color: "var(--foreground-muted)" }}>
         {tab === "learned"
           ? "No learned context yet.\nRun a few workflows and the agent will start learning."
           : "No failure patterns recorded.\nPatterns are saved when the agent self-heals a failed step."}
@@ -211,17 +211,17 @@ export default function MemoryPanel() {
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div>
-          <h2 className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>Memory</h2>
-          <p className="text-[11px] mt-0.5" style={{ color: "#334155" }}>
+          <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Memory</h2>
+          <p className="text-[11px] mt-0.5" style={{ color: "var(--foreground-muted)" }}>
             What the agent has learned about your business and workflows
           </p>
         </div>
         <button
           onClick={load}
           className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
-          style={{ color: "#475569", border: "1px solid #1a1a2e" }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.borderColor = "#334155"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+          style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--foreground-2)"; e.currentTarget.style.borderColor = "var(--foreground-muted)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; e.currentTarget.style.borderColor = "var(--border)"; }}
         >
           Refresh
         </button>
@@ -230,7 +230,7 @@ export default function MemoryPanel() {
       {/* Tabs */}
       <div
         className="flex items-center gap-1 p-1 rounded-lg flex-shrink-0"
-        style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
         {(["learned", "patterns"] as Tab[]).map((t) => {
           const count = t === "learned" ? longTerm.length : patterns.length;
@@ -242,8 +242,8 @@ export default function MemoryPanel() {
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-all"
               style={
                 isActive
-                  ? { background: "linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)", color: "#fff" }
-                  : { color: "#64748b" }
+                  ? { background: "var(--accent)", color: "#fff" }
+                  : { color: "var(--foreground-2)" }
               }
             >
               {t === "learned" ? "Learned" : "Failure patterns"}
@@ -252,7 +252,7 @@ export default function MemoryPanel() {
                 style={
                   isActive
                     ? { background: "rgba(255,255,255,0.15)", color: "#fff" }
-                    : { background: "#1a1a2e", color: "#475569" }
+                    : { background: "var(--border)", color: "var(--foreground-3)" }
                 }
               >
                 {count}
@@ -266,7 +266,7 @@ export default function MemoryPanel() {
       <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
           <div className="flex items-center justify-center h-32">
-            <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: "#1a1a2e", borderTopColor: "#7c3aed" }} />
+            <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: "var(--border)", borderTopColor: "var(--accent)" }} />
           </div>
         ) : activeEntries.length === 0 ? (
           <EmptyState tab={tab} />
@@ -286,14 +286,14 @@ export default function MemoryPanel() {
 
       {/* Footer: clear all */}
       {activeEntries.length > 0 && (
-        <div className="flex-shrink-0 pt-3" style={{ borderTop: "1px solid #1a1a2e" }}>
+        <div className="flex-shrink-0 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
           <button
             onClick={() => handleClearAll(activeType, tab)}
             disabled={clearingTab === tab}
             className="text-[11px] px-3 py-1.5 rounded-lg transition-all"
-            style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+            style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.borderColor = "rgba(248,113,113,0.2)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#1a1a2e"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--foreground-3)"; e.currentTarget.style.borderColor = "var(--border)"; }}
           >
             {clearingTab === tab ? "Clearing..." : `Clear all ${tab === "learned" ? "learned context" : "failure patterns"}`}
           </button>

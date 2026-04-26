@@ -83,7 +83,7 @@ function ParamRow({
   return (
     <div
       className="flex items-start gap-2 p-2 rounded-lg"
-      style={{ background: "#050508", border: "1px solid #0f0f18" }}
+      style={{ background: "var(--background)", border: "1px solid var(--border-subtle)" }}
     >
       <div className="flex-1 space-y-1.5">
         <div className="flex gap-1.5">
@@ -92,17 +92,17 @@ function ParamRow({
             onChange={(e) => onChange({ ...param, name: e.target.value })}
             placeholder="param_name"
             className="flex-1 text-[10px] px-2 py-1 rounded font-mono outline-none"
-            style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#e2e8f0" }}
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--foreground)" }}
           />
           <select
             value={param.type}
             onChange={(e) => onChange({ ...param, type: e.target.value as CustomToolParam["type"] })}
             className="text-[10px] px-1.5 py-1 rounded"
-            style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#94a3b8" }}
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--foreground-2)" }}
           >
             {PARAM_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <label className="flex items-center gap-1 text-[10px] cursor-pointer" style={{ color: "#475569" }}>
+          <label className="flex items-center gap-1 text-[10px] cursor-pointer" style={{ color: "var(--foreground-3)" }}>
             <input
               type="checkbox"
               checked={param.required}
@@ -117,15 +117,15 @@ function ParamRow({
           onChange={(e) => onChange({ ...param, description: e.target.value })}
           placeholder="Description"
           className="w-full text-[10px] px-2 py-1 rounded outline-none"
-          style={{ background: "#0d0d12", border: "1px solid #1a1a2e", color: "#94a3b8" }}
+          style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--foreground-2)" }}
         />
       </div>
       <button
         onClick={onDelete}
         className="text-[11px] px-1.5 py-1 rounded mt-0.5 flex-shrink-0"
-        style={{ color: "#334155" }}
+        style={{ color: "var(--foreground-muted)" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#334155")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-muted)")}
       >
         ×
       </button>
@@ -226,8 +226,8 @@ export default function CustomToolsPanel() {
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-8">
-        <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }} />
-        <span className="text-sm" style={{ color: "#475569" }}>Loading tools...</span>
+        <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+        <span className="text-sm" style={{ color: "var(--foreground-3)" }}>Loading tools...</span>
       </div>
     );
   }
@@ -236,8 +236,8 @@ export default function CustomToolsPanel() {
     <div className="h-full overflow-y-auto scrollbar-thin pr-1">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-bold" style={{ color: "#e2e8f0" }}>Custom Tools</h2>
-          <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
+          <h2 className="text-sm font-bold" style={{ color: "var(--foreground)" }}>Custom Tools</h2>
+          <p className="text-xs mt-0.5" style={{ color: "var(--foreground-3)" }}>
             Define HTTP endpoints as agent tools — the AI can call them like any built-in integration.
           </p>
         </div>
@@ -245,7 +245,7 @@ export default function CustomToolsPanel() {
           <button
             onClick={openNew}
             className="text-[11px] px-3 py-1.5 rounded-lg font-semibold flex-shrink-0"
-            style={{ background: "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "#fff" }}
+            style={{ background: "var(--accent)", color: "#fff" }}
           >
             + New tool
           </button>
@@ -257,33 +257,33 @@ export default function CustomToolsPanel() {
         <form
           onSubmit={handleSubmit}
           className="rounded-xl p-4 mb-4 space-y-3"
-          style={{ background: "#0d0d12", border: "1px solid rgba(124,58,237,0.3)" }}
+          style={{ background: "var(--surface)", border: "1px solid rgba(218,119,86,0.3)" }}
         >
-          <p className="text-[11px] font-semibold" style={{ color: "#a78bfa" }}>
+          <p className="text-[11px] font-semibold" style={{ color: "var(--accent)" }}>
             {editingId ? "Edit tool" : "New custom tool"}
           </p>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#334155" }}>Tool name</label>
+              <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "var(--foreground-muted)" }}>Tool name</label>
               <input
                 required
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="my_crm_lookup"
                 className="w-full text-[11px] px-2.5 py-1.5 rounded-lg font-mono outline-none"
-                style={{ background: "#050508", border: "1px solid #1a1a2e", color: "#e2e8f0" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+                style={{ background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)" }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.45)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#334155" }}>Method</label>
+              <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "var(--foreground-muted)" }}>Method</label>
               <select
                 value={form.httpMethod}
                 onChange={(e) => setForm((f) => ({ ...f, httpMethod: e.target.value as HttpMethod }))}
                 className="w-full text-[11px] px-2.5 py-1.5 rounded-lg outline-none"
-                style={{ background: "#050508", border: "1px solid #1a1a2e", color: METHOD_COLORS[form.httpMethod].text }}
+                style={{ background: "var(--background)", border: "1px solid var(--border)", color: METHOD_COLORS[form.httpMethod].text }}
               >
                 {HTTP_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
@@ -291,7 +291,7 @@ export default function CustomToolsPanel() {
           </div>
 
           <div>
-            <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#334155" }}>Description (shown to the AI)</label>
+            <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "var(--foreground-muted)" }}>Description (shown to the AI)</label>
             <textarea
               required
               rows={2}
@@ -299,14 +299,14 @@ export default function CustomToolsPanel() {
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               placeholder="Looks up a customer in our internal CRM by email address"
               className="w-full text-[11px] px-2.5 py-1.5 rounded-lg resize-none outline-none"
-              style={{ background: "#050508", border: "1px solid #1a1a2e", color: "#e2e8f0" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+              style={{ background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.45)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
 
           <div>
-            <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#334155" }}>Endpoint URL</label>
+            <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "var(--foreground-muted)" }}>Endpoint URL</label>
             <input
               required
               type="url"
@@ -314,15 +314,15 @@ export default function CustomToolsPanel() {
               onChange={(e) => setForm((f) => ({ ...f, httpUrl: e.target.value }))}
               placeholder="https://api.yourapp.com/customers/lookup"
               className="w-full text-[11px] px-2.5 py-1.5 rounded-lg font-mono outline-none"
-              style={{ background: "#050508", border: "1px solid #1a1a2e", color: "#e2e8f0" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#1a1a2e")}
+              style={{ background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.45)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
 
           <div>
-            <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#334155" }}>
-              Headers <span style={{ color: "#1e293b" }}>(JSON)</span>
+            <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "var(--foreground-muted)" }}>
+              Headers <span style={{ color: "var(--foreground-muted)" }}>(JSON)</span>
             </label>
             <textarea
               rows={2}
@@ -330,9 +330,9 @@ export default function CustomToolsPanel() {
               onChange={(e) => setForm((f) => ({ ...f, headers: e.target.value }))}
               placeholder='{"Authorization": "Bearer YOUR_TOKEN"}'
               className="w-full text-[11px] px-2.5 py-1.5 rounded-lg resize-none outline-none font-mono"
-              style={{ background: "#050508", border: `1px solid ${headerError ? "rgba(239,68,68,0.4)" : "#1a1a2e"}`, color: "#e2e8f0" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = headerError ? "rgba(239,68,68,0.4)" : "#1a1a2e")}
+              style={{ background: "var(--background)", border: `1px solid ${headerError ? "rgba(239,68,68,0.4)" : "var(--border)"}`, color: "var(--foreground)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(218,119,86,0.45)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = headerError ? "rgba(239,68,68,0.4)" : "var(--border)")}
             />
             {headerError && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{headerError}</p>}
           </div>
@@ -340,12 +340,12 @@ export default function CustomToolsPanel() {
           {/* Parameters */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[10px] uppercase tracking-widest" style={{ color: "#334155" }}>Parameters</label>
+              <label className="text-[10px] uppercase tracking-widest" style={{ color: "var(--foreground-muted)" }}>Parameters</label>
               <button
                 type="button"
                 onClick={addParam}
                 className="text-[10px] px-2 py-0.5 rounded"
-                style={{ color: "#7c3aed", border: "1px solid rgba(124,58,237,0.25)" }}
+                style={{ color: "var(--accent)", border: "1px solid rgba(218,119,86,0.25)" }}
               >
                 + Add
               </button>
@@ -360,7 +360,7 @@ export default function CustomToolsPanel() {
                 />
               ))}
               {form.params.length === 0 && (
-                <p className="text-[10px] text-center py-2" style={{ color: "#1e293b" }}>
+                <p className="text-[10px] text-center py-2" style={{ color: "var(--foreground-muted)" }}>
                   No parameters yet — add input fields the AI can fill in.
                 </p>
               )}
@@ -372,7 +372,7 @@ export default function CustomToolsPanel() {
               type="submit"
               disabled={saving}
               className="text-[11px] px-4 py-1.5 rounded-lg font-semibold"
-              style={{ background: "linear-gradient(135deg,#7c3aed,#5b21b6)", color: "#fff" }}
+              style={{ background: "var(--accent)", color: "#fff" }}
             >
               {saving ? "Saving..." : editingId ? "Save changes" : "Create tool"}
             </button>
@@ -380,7 +380,7 @@ export default function CustomToolsPanel() {
               type="button"
               onClick={() => setShowForm(false)}
               className="text-[11px] px-3 py-1.5 rounded-lg"
-              style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+              style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
             >
               Cancel
             </button>
@@ -392,10 +392,10 @@ export default function CustomToolsPanel() {
       {tools.length === 0 && !showForm ? (
         <div
           className="rounded-xl p-6 text-center"
-          style={{ background: "#0d0d12", border: "1px dashed #1a1a2e" }}
+          style={{ background: "var(--surface)", border: "1px dashed var(--border)" }}
         >
-          <p className="text-sm mb-1" style={{ color: "#334155" }}>No custom tools yet</p>
-          <p className="text-xs" style={{ color: "#1e293b" }}>
+          <p className="text-sm mb-1" style={{ color: "var(--foreground-muted)" }}>No custom tools yet</p>
+          <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>
             Connect any HTTP endpoint as an agent tool. The AI will use it like a native integration.
           </p>
         </div>
@@ -407,7 +407,7 @@ export default function CustomToolsPanel() {
               <div
                 key={tool.id}
                 className="rounded-xl p-3"
-                style={{ background: "#0d0d12", border: "1px solid #1a1a2e" }}
+                style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -418,18 +418,18 @@ export default function CustomToolsPanel() {
                       >
                         {tool.httpMethod}
                       </span>
-                      <code className="text-[11px] font-semibold truncate" style={{ color: "#e2e8f0" }}>
+                      <code className="text-[11px] font-semibold truncate" style={{ color: "var(--foreground)" }}>
                         {tool.name}
                       </code>
                     </div>
-                    <p className="text-[10px] truncate" style={{ color: "#475569" }}>
+                    <p className="text-[10px] truncate" style={{ color: "var(--foreground-3)" }}>
                       {tool.description}
                     </p>
-                    <p className="text-[10px] font-mono truncate mt-0.5" style={{ color: "#1e293b" }}>
+                    <p className="text-[10px] font-mono truncate mt-0.5" style={{ color: "var(--foreground-muted)" }}>
                       {tool.httpUrl}
                     </p>
                     {tool.params.length > 0 && (
-                      <p className="text-[10px] mt-0.5" style={{ color: "#334155" }}>
+                      <p className="text-[10px] mt-0.5" style={{ color: "var(--foreground-muted)" }}>
                         Params: {tool.params.map((p) => `${p.name}${p.required ? "*" : ""}`).join(", ")}
                       </p>
                     )}
@@ -449,16 +449,16 @@ export default function CustomToolsPanel() {
                     <button
                       onClick={() => openEdit(tool)}
                       className="text-[10px] px-2 py-1 rounded-lg"
-                      style={{ color: "#475569", border: "1px solid #1a1a2e" }}
+                      style={{ color: "var(--foreground-3)", border: "1px solid var(--border)" }}
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(tool.id)}
                       className="text-[10px] px-1.5 py-1 rounded-lg"
-                      style={{ color: "#334155" }}
+                      style={{ color: "var(--foreground-muted)" }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "#334155")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground-muted)")}
                     >
                       ×
                     </button>

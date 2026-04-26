@@ -185,6 +185,7 @@ function DashboardInner() {
       setCurrentObservation(null);
 
       const toolsSummary: string[] = [];
+      const toolCallLog = new Map<string, { name: string; status: "pending" | "success" | "error"; output?: string; error?: string }>();
 
       try {
         const res = await fetch("/api/agent", {
@@ -224,18 +225,43 @@ function DashboardInner() {
         finalMessage = `Something went wrong: ${error}`;
       }
 
+      // Build a run report from tracked tool outcomes whenever tools were used
+      if (toolCallLog.size > 0) {
+        const calls = Array.from(toolCallLog.values());
+        const succeeded = calls.filter((c) => c.status === "success");
+        const failed = calls.filter((c) => c.status === "error");
+        const label = (name: string) => name.replace(/_/g, " ");
+
+        const ranLine = calls.map((c) => label(c.name)).join(", ");
+        const succeededLines = succeeded.length === 0
+          ? "  Nothing succeeded."
+          : succeeded.map((c) => `  ${label(c.name)}: ${(c.output ?? "").slice(0, 200)}`).join("\n");
+        const failedLines = failed.length === 0
+          ? "  Nothing failed."
+          : failed.map((c) => {
+              const err = c.error ?? "unknown error";
+              const fix = err.includes("Invalid Notion ID") ? "Check the Database ID in Settings — it must be the 32-character hex ID from your Notion database URL."
+                : err.includes("not connected") || err.includes("API_KEY") ? "Add the required API key in the Settings panel."
+                : err.includes("not found") || err.includes("404") ? "Make sure the resource exists and your integration has access to it."
+                : "Check the error above and verify your credentials in Settings.";
+              return `  ${label(c.name)}: ${err}\n  Fix: ${fix}`;
+            }).join("\n");
+
+        const report = `Run Report\n----------\nWhat ran: ${ranLine}\n\nWhat succeeded:\n${succeededLines}\n\nWhat failed:\n${failedLines}`;
+        finalMessage = finalMessage ? `${finalMessage}\n\n${report}` : report;
+      }
+
+      const chatContent = finalMessage || "No response from agent.";
+
       setMessages((prev) => [...prev, {
-        id: generateId(), role: "assistant", content: finalMessage || "Done.",
+        id: generateId(), role: "assistant", content: chatContent,
         runId, toolsSummary: toolsSummary.length > 0 ? toolsSummary : undefined, timestamp: Date.now(),
       }]);
 
-      const toolContext = toolsSummary.length > 0
-        ? `\n[Tools used: ${toolsSummary.join(", ")}]`
-        : "";
       historyRef.current = [
         ...historyRef.current,
         { role: "user", content: text.trim() },
-        { role: "assistant", content: (finalMessage || "Done.") + toolContext },
+        { role: "assistant", content: chatContent },
       ];
 
       // Persist the completed run to Supabase and refresh cache
@@ -256,12 +282,15 @@ function DashboardInner() {
         switch (event.type) {
           case "tool_call_start": {
             setLoadingToolName(event.toolName);
+            toolCallLog.set(event.toolCallId, { name: event.toolName, status: "pending" });
             const tc: ToolCallRecord = { id: event.toolCallId, toolName: event.toolName, status: "calling", input: event.input, startedAt: Date.now() };
             setCurrentRun((prev) => prev ? { ...prev, toolCalls: [...prev.toolCalls, tc] } : prev);
             break;
           }
           case "tool_call_complete": {
             setLoadingToolName(undefined);
+            const completeEntry = toolCallLog.get(event.toolCallId);
+            if (completeEntry) toolCallLog.set(event.toolCallId, { ...completeEntry, status: "success", output: event.output });
             setCurrentRun((prev) => {
               if (!prev) return prev;
               const updated = prev.toolCalls.map((tc) =>
@@ -280,6 +309,8 @@ function DashboardInner() {
           }
           case "tool_call_error": {
             setLoadingToolName(undefined);
+            const errorEntry = toolCallLog.get(event.toolCallId);
+            if (errorEntry) toolCallLog.set(event.toolCallId, { ...errorEntry, status: "error", error: event.error });
             setCurrentRun((prev) => {
               if (!prev) return prev;
               const updated = prev.toolCalls.map((tc) =>

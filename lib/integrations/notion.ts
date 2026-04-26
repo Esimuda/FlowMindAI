@@ -40,25 +40,43 @@ export async function getDatabaseParentPageId(apiKey: string, databaseId: string
 export async function searchPages(apiKey: string): Promise<string> {
   const notion = client(apiKey);
 
-  const response = await notion.request<{
-    results: Array<{ id: string; object: string; properties?: Record<string, unknown>; title?: Array<{ plain_text: string }> }>;
-  }>({
-    path: "search",
-    method: "post",
-    body: { filter: { property: "object", value: "page" }, page_size: 10 },
-  });
+  // Use the SDK's native search (no type filter) to catch both pages and databases
+  const response = await notion.search({ page_size: 20 });
 
-  if (response.results.length === 0) {
-    return "No pages found. Make sure at least one Notion page is shared with your integration.";
+  type RichText = { plain_text: string };
+  type AnyResult = { id: string; object: string; title?: RichText[]; properties?: Record<string, unknown> };
+  const results = response.results as AnyResult[];
+
+  const pages: string[] = [];
+  const databases: string[] = [];
+
+  for (const item of results) {
+    const titleArr: RichText[] =
+      item.title ??
+      (item.properties?.title as { title: RichText[] } | undefined)?.title ??
+      [];
+    const name = titleArr.map((t) => t.plain_text).join("") || "Untitled";
+    const id = item.id.replace(/-/g, "");
+    if (item.object === "page") pages.push(`${name} (id: ${id})`);
+    else if (item.object === "database") databases.push(`${name} (id: ${id})`);
   }
 
-  const pages = response.results.map((p) => {
-    const titleArr = p.title ?? (p.properties?.title as { title: Array<{ plain_text: string }> } | undefined)?.title ?? [];
-    const name = titleArr.map((t) => t.plain_text).join("") || "Untitled";
-    return `${name} (id: ${p.id.replace(/-/g, "")})`;
-  });
+  if (pages.length > 0) {
+    return `Accessible pages:\n${pages.join("\n")}\n\nUse one of these IDs as parent_page_id when creating a database.`;
+  }
 
-  return `Accessible pages:\n${pages.join("\n")}\n\nUse one of these IDs as parent_page_id when creating a database.`;
+  if (databases.length > 0) {
+    return (
+      `No standalone pages found. The integration can access these databases:\n${databases.join("\n")}\n\n` +
+      `To create a new database you need a PAGE (not a database) as the parent. ` +
+      `In Notion, open any page (not a database), click the ··· menu → Connections → add the integration. Then retry.`
+    );
+  }
+
+  return (
+    "No accessible pages or databases found. " +
+    "In Notion, open a page, click the ··· menu → Connections → add the integration. Then retry."
+  );
 }
 
 export async function createDatabase(

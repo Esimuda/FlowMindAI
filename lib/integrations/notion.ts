@@ -20,7 +20,8 @@ function sanitizeId(raw: string): string {
 
 // Retrieves the parent page ID of an existing database — used as fallback
 // parent when creating new databases without an explicit page ID.
-export async function getDatabaseParentPageId(apiKey: string, databaseId: string): Promise<string> {
+// Returns undefined when the database lives at workspace root (no page parent).
+export async function getDatabaseParentPageId(apiKey: string, databaseId: string): Promise<string | undefined> {
   const notion = client(apiKey);
   const response = await notion.request<{
     parent: { type: string; page_id?: string };
@@ -33,9 +34,7 @@ export async function getDatabaseParentPageId(apiKey: string, databaseId: string
   if (response.parent.type === "page_id" && response.parent.page_id) {
     return response.parent.page_id.replace(/-/g, "");
   }
-  throw new Error(
-    "Could not find a parent page for the configured database. Share a Notion page with your integration and provide its ID as parent_page_id."
-  );
+  return undefined;
 }
 
 export async function searchPages(apiKey: string): Promise<string> {

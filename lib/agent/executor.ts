@@ -64,7 +64,11 @@ async function dispatch(
       // If no valid parent given, auto-resolve from the configured database's parent page
       if (!parentId || ["root", "workspace", "undefined", ""].includes(parentId.toLowerCase())) {
         if (config.notionDatabaseId) {
-          parentId = await notion.getDatabaseParentPageId(apiKey, config.notionDatabaseId);
+          try {
+            parentId = await notion.getDatabaseParentPageId(apiKey, config.notionDatabaseId);
+          } catch {
+            parentId = undefined;
+          }
         }
       }
       return notion.createDatabase(

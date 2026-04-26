@@ -16,7 +16,7 @@ export const AGENT_TOOLS: Anthropic.Tool[] = [
   {
     name: "notion_create_database",
     description:
-      "Create a new Notion database (table) with defined columns inside a parent page. Use this when the user needs a new table structure — do not assume a database already exists.",
+      "Create a new Notion database (table) with defined columns inside a parent page. IMPORTANT: Always call notion_search_pages first to get a valid parent_page_id — Notion integrations cannot create databases at the workspace root and will fail without a page parent.",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -31,10 +31,10 @@ export const AGENT_TOOLS: Anthropic.Tool[] = [
         },
         parent_page_id: {
           type: "string",
-          description: "Optional. The Notion page ID where the database will be created. If omitted, the database is created at the workspace root.",
+          description: "Required. The Notion page ID where the database will be created. Get this from notion_search_pages first.",
         },
       },
-      required: ["title", "columns"],
+      required: ["title", "columns", "parent_page_id"],
     },
   },
   {
